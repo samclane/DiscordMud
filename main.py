@@ -3,8 +3,7 @@ import os
 import shelve
 
 import discord
-
-client = discord.Client()
+from discord.ext import commands
 
 token = os.environ.get("DISCORD_BOT_TOKEN")
 
@@ -18,27 +17,23 @@ settings = shelve.open(settings_filename)
 users = shelve.open(users_filename)
 world = shelve.open(world_filename)
 
+game_channel = None
+settings['game_channel'] = None
 
-@client.event
+description = '''Attempt at a discord MUD server'''
+
+bot = commands.Bot(command_prefix='*', description=description)
+
+
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
     print('------')
 
 
-@client.event
-async def on_message(message: discord.Message):
-    if message.content.startswith(prefix):
-        text = message.content.replace(prefix, '')  # strip the prefix from the message
-        user = message.author
-        channel = message.channel
-        if not (user.id in users.keys()):
-            users[user.id] = MUDUser(user)
-            await register_user(users[user.id], channel)
-
-
-@client.event
+@bot.event
 async def on_server_remove(server: discord.Server):
     print('Logging out')
     print('------')
@@ -52,6 +47,18 @@ def save_files():
     world.close()
 
 
+@bot.command(pass_context=True)
+async def register(ctx : discord.ext.commands.context.Context):
+    member = ctx.message.author
+    await bot.say("Do you want to join the MUD?")
+    response = await bot.wait_for_message(timeout=5.0, author=member, check=lambda msg: msg.content.lower() == 'yes')
+    if response is None:
+        await bot.say("Nevermind...")
+    elif response:
+        settings[member.id] = MUDUser(member)
+        await bot.say("You've joined!")
+
+
 class MUDUser:
     DiscordUser = None
 
@@ -59,9 +66,4 @@ class MUDUser:
         self.DiscordUser = discord_user
 
 
-async def register_user(mud_user: MUDUser, channel: discord.Channel):
-    await client.send_message(channel, mud_user.DiscordUser.name + ", would you like to join the MUD?")
-    return
-
-
-client.run(token)
+bot.run(token)
