@@ -48,7 +48,7 @@ def save_files():
 
 
 @bot.command(pass_context=True)
-async def register(ctx : discord.ext.commands.context.Context):
+async def register(ctx: discord.ext.commands.context.Context):
     member = ctx.message.author
     await bot.say("Do you want to join the MUD?")
     response = await bot.wait_for_message(timeout=5.0, author=member, check=lambda msg: msg.content.lower() == 'yes')
