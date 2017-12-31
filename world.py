@@ -1,19 +1,6 @@
 from enum import Enum
 
 
-class World:
-    Width = 0
-    Height = 0
-    Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
-    Towns = set()
-    Wilds = set()
-
-    def __init__(self, width, height):
-        self.Width = width
-        self.Height = height
-        self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]
-
-
 class Space:
     X = None
     Y = None
@@ -21,6 +8,13 @@ class Space:
     def __init__(self, x, y):
         self.X = x
         self.Y = y
+
+
+class IndustryType(Enum):
+    Mining = 1
+    Farming = 2
+    Smithing = 3
+    Woodworking = 4
 
 
 class Town(Space):
@@ -35,12 +29,6 @@ class Town(Space):
         self.Industry = industry
 
 
-class IndustryType(Enum):
-    Mining = 1
-    Farming = 2
-    Smithing = 3
-
-
 class Wilds(Space):
     Name: str = None
     Events: [] = []
@@ -49,3 +37,25 @@ class Wilds(Space):
         super().__init__(x, y)
         self.Name = name
         self.Events = events
+
+
+class World:
+    Width = 0
+    Height = 0
+    Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
+    Towns = set()
+    Wilds = set()
+
+    def __init__(self, width, height):
+        self.Width = width
+        self.Height = height
+        self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]
+
+    def addTown(self, town: Town):
+        self.Towns.add(town)
+        self.Map[town.X][town.Y] = town
+
+    def addWilds(self, wilds: Wilds):
+        self.Wilds.add(wilds)
+        self.Map[wilds.X][wilds.Y] = Wilds
+

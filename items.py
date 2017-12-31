@@ -1,8 +1,13 @@
 class Equipment:
-    Name: str = None
-    Type: str = None
-    Weight: int = None
-    BaseValue: int = None
+    Name: str = "Empty"
+    Type: str = "None"
+    Weight: int = 0
+    BaseValue: int = 0
+
+    def __init__(self, name, weight, base_value):
+        self.Name = name
+        self.Weight = weight
+        self.BaseValue = base_value
 
 
 class HeadEquipment(Equipment):
@@ -30,12 +35,12 @@ class OffHandEquipment(Equipment):
 
 
 class EquipmentSet:
-    Head: HeadEquipment = None
-    Chest: ChestEquipment = None
-    Legs: LegsEquipment = None
-    Feet: FeetEquipment = None
-    MainHand: MainHandEquipment = None
-    OffHand: OffHandEquipment = None
+    Head: HeadEquipment = HeadEquipment
+    Chest: ChestEquipment = ChestEquipment
+    Legs: LegsEquipment = LegsEquipment
+    Feet: FeetEquipment = FeetEquipment
+    MainHand: MainHandEquipment = MainHandEquipment
+    OffHand: OffHandEquipment = OffHandEquipment
 
     def __str__(self):
         return "Head: {}\r\n" \
@@ -43,4 +48,11 @@ class EquipmentSet:
                "Legs: {}\r\n" \
                "Feet: {}\r\n" \
                "MainHand: {}\r\n" \
-               "OffHand: {}\r\n"
+               "OffHand: {}\r\n".format(
+                self.Head.Name,
+                self.Chest.Name,
+                self.Legs.Name,
+                self.Feet.Name,
+                self.MainHand.Name,
+                self.OffHand.Name
+        )
