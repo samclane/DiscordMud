@@ -24,13 +24,20 @@ def default_init():
     settings['users'] = {}
     settings['player_characters'] = {}
     settings['world']: gamespace.World = gamespace.World(50, 50)
-    settings['game_channel'] = None
-    settings['starting_town'] = gamespace.Town(0, 0, 'Braxton', 53, gamespace.IndustryType.Mining)
+    w = settings['world']
+    t = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
+    w.addTown(t)
+    save_setting('world', None, w)
+    settings['starting_town'] = t
+    settings['game_channel'] = None  # The public text channel where public events take place
 
 
 def save_setting(name, index, value):
     subsetting = settings[name]
-    subsetting[index] = value
+    if index is not None:
+        subsetting[index] = value
+    else:
+        subsetting = value
     settings[name] = subsetting
 
 
