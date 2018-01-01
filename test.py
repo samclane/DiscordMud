@@ -1,8 +1,7 @@
 import unittest
 from player import *
 from items import *
-from world import *
-
+from gamespace import *
 
 class PlayerTest(unittest.TestCase):
 

@@ -9,6 +9,9 @@ class Space:
         self.X = x
         self.Y = y
 
+    def __str__(self):
+        return "({}, {})".format(self.X, self.Y)
+
 
 class IndustryType(Enum):
     Mining = 1

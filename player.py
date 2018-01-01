@@ -15,7 +15,7 @@ class WandererClass(PlayerClass):
 class PlayerCharacter:
     UserId: str = None
     Name: str = None
-    Class: PlayerClass = WandererClass
+    Class: PlayerClass = WandererClass()
     HitPoints: int = None
     EquipmentSet: items.EquipmentSet = items.EquipmentSet()
 
