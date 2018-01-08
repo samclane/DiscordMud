@@ -27,6 +27,8 @@ def default_init():
     w = settings['world']
     t = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
     w.addTown(t)
+    f = gamespace.Wilds(5, 2, 'The Ruined Forest')
+    w.addWilds(f)
     save_setting('world', None, w)
     settings['starting_town'] = t
     settings['game_channel'] = None  # The public text channel where public events take place
@@ -98,15 +100,42 @@ async def whereami(ctx: discord.ext.commands.context.Context):
         return
     user = settings['users'][member.id]
     message = "You are at " + str(user.Location) + '.'
-    # if user.Location in settings['world'].Towns:
-    #    message += ' You are also in the town ' + settings[]
+    if user.Location in settings['world'].Towns:
+        l = user.Location
+        message += 'You are also in the town ' + settings['world'].Map[l.X][l.Y].Name + '.'
+    if user.Location in settings['world'].Wilds:
+        l = user.Location
+        message += 'You are also in the wilds, nicknamed ' + settings['world'].Map[l.X][l.Y].Name + '.'
     await bot.say(message)
+
+@bot.command(pass_context=True)
+async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
+    member = ctx.message.author
+    if not await check_member(member):
+        return
+    user = settings['users'][member.id]
+    directions = ['n', 's', 'e', 'w']
+    direction_vectors = [gamespace.Space(0, 1), gamespace.Space(0, -1), gamespace.Space(1, 0), gamespace.Space(-1, 0)]
+    if dir_in not in directions:
+        await bot.say("Invalid direction given.")
+        return
+    dir_index = directions.index(dir_in)
+    new_location = user.Location + direction_vectors[dir_index]
+    if new_location.X < 0 or new_location.Y < 0:
+        await bot.say("Move would put you outside the map!")
+        return
+    user.Location = new_location
+    save_setting('users', user.DiscordUserID, user)
+
 
 
 class MUDUser:
     DiscordUserID: str = None
     __x = 0
     __y = 0
+
+    # PlayerCharacter
+    # Location
 
     def __init__(self, discord_user_id: str):
         self.DiscordUserID = discord_user_id
@@ -125,6 +154,11 @@ class MUDUser:
     def Location(self):
         return gamespace.Space(self.__x, self.__y)
 
+    @Location.setter
+    def Location(self, other: gamespace.Space):
+        self.__x = other.X
+        self.__y = other.Y
+
 
 async def CreatePlayerCharacter(mud_user: MUDUser):
     char = player.PlayerCharacter(mud_user.DiscordUserID)
@@ -134,5 +168,6 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
     mud_user.PlayerCharacter = char
 
 
-default_init()
-bot.run(token)
+if __name__ == "__main__":
+    default_init()
+    bot.run(token)
