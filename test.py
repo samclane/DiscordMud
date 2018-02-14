@@ -1,7 +1,9 @@
 import unittest
-from player import *
-from items import *
+
 from gamespace import *
+from items import *
+from player import *
+
 
 class PlayerTest(unittest.TestCase):
 
@@ -32,6 +34,6 @@ class PlayerTest(unittest.TestCase):
         t = Town(1, 1, 'Braxton', 50, IndustryType.Farming)
         w.addTown(t)
         self.assertIn(t, w.Towns)
-        i = Wilds(2, 2, 'Hidden Forrest', None)
+        i = Wilds(2, 2, 'Hidden Forrest')
         w.addWilds(i)
         self.assertIn(i, w.Wilds)

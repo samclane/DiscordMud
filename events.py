@@ -1,16 +1,22 @@
+import uuid
+
 import npc
-
-
-class Event:
-    Type: EventType = None
-    FlavorText: str = ""
-
-    def __init__(self, type: EventType):
-        self.Type = type
 
 
 class EventType:
     pass
+
+
+class Event:
+    Uid: str = None
+    Type: EventType = None
+    FlavorText: str = ""
+
+    def __init__(self, e_type: EventType, flavor: str = None):
+        self.Type = e_type
+        self.Uid = str(uuid.uuid4())
+        if flavor:
+            self.FlavorText = flavor
 
 
 class CombatEvent(EventType):
@@ -31,3 +37,10 @@ class EncounterEvent(EventType):
         self.Choices = choices
         self.Outcomes = outcomes
         self.NPCInvolved = npc
+
+
+class MerchantEvent(EventType):
+    Items: {} = {}
+
+    def __init__(self, items):
+        self.Items = items

@@ -1,11 +1,13 @@
 import os
+import shelve
+import threading
 
 import discord
 from discord.ext import commands
-import shelve
 
-import player
 import gamespace
+import player
+import ui
 
 token = os.environ.get('DISCORD_BOT_TOKEN')
 
@@ -108,6 +110,7 @@ async def whereami(ctx: discord.ext.commands.context.Context):
         message += 'You are also in the wilds, nicknamed ' + settings['world'].Map[l.X][l.Y].Name + '.'
     await bot.say(message)
 
+
 @bot.command(pass_context=True)
 async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     member = ctx.message.author
@@ -121,12 +124,20 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
         return
     dir_index = directions.index(dir_in)
     new_location = user.Location + direction_vectors[dir_index]
-    if new_location.X < 0 or new_location.Y < 0:
+    world = settings['world']
+    if new_location.X < 0 or new_location.Y < 0 or new_location.X > world.Width or new_location.Y > world.Height:
         await bot.say("Move would put you outside the map!")
         return
     user.Location = new_location
     save_setting('users', user.DiscordUserID, user)
-
+    await bot.say("Your new location is ({},{})".format(new_location.X, new_location.Y))
+    if user.Location in settings['world'].Towns:
+        locat = user.Location
+        await bot.say('You are also in the town ' + settings['world'].Map[locat.X][locat.Y].Name + '.')
+    if user.Location in settings['world'].Wilds:
+        locat = user.Location
+        await bot.say('You are also in the wilds, nicknamed ' + settings['world'].Map[locat.X][locat.Y].Name + '.')
+        settings['world'].Map[locat.X][locat.Y].runEvent()
 
 
 class MUDUser:
@@ -167,7 +178,19 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
     char.Name = response.content
     mud_user.PlayerCharacter = char
 
-
+threads = []
 if __name__ == "__main__":
+    # initialize the bot
     default_init()
-    bot.run(token)
+    tBot = threading.Thread(target=bot.run, args=(token,))
+    threads.append(tBot)
+    tBot.start()
+
+    # initialize the gui
+    root = ui.Tk()
+    root.geometry("1500x1500")
+    app = ui.Window(root, settings)
+    tGUI = threading.Thread(target=root.mainloop())
+    threads.append(tGUI)
+    tGUI.start()
+

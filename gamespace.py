@@ -21,17 +21,20 @@ class Space:
     def __hash__(self):
         return self.X + 100 * self.Y
 
+
 class IndustryType(Enum):
     Mining = 1
     Farming = 2
     Smithing = 3
     Woodworking = 4
 
+
 class CardinalDirection(Enum):
     NORTH = 0
     SOUTH = 1
     EAST = 2
     WEST = 3
+
 
 class Town(Space):
     Name: str = None
@@ -48,10 +51,18 @@ class Town(Space):
 class Wilds(Space):
     Name: str = None
     Events: [] = []
+    EventChances: dict = {}
 
     def __init__(self, x, y, name):
         super().__init__(x, y)
         self.Name = name
+
+    def addEvent(self, event, chance):
+        self.Events.append(event)
+        self.EventChances[event.Uid] = chance
+
+    def runEvent(self):
+        pass
 
 
 class World:
@@ -73,5 +84,3 @@ class World:
     def addWilds(self, wilds: Wilds):
         self.Wilds.append(wilds)
         self.Map[wilds.X][wilds.Y] = wilds
-
-
