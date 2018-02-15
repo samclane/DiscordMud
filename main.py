@@ -1,5 +1,4 @@
 import os
-import shelve
 import threading
 
 import discord
@@ -13,36 +12,23 @@ token = os.environ.get('DISCORD_BOT_TOKEN')
 
 prefix = '*'
 
-settings_filename = 'settings'
-
-settings = shelve.open(settings_filename)
-
 description = '''Attempt at a discord MUD server'''
 
 bot = commands.Bot(command_prefix='*', description=description)
 
+world = None
 
-def default_init():
-    settings['users'] = {}
-    settings['player_characters'] = {}
-    settings['world']: gamespace.World = gamespace.World(50, 50)
-    w = settings['world']
-    t = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
-    w.addTown(t)
-    f = gamespace.Wilds(5, 2, 'The Ruined Forest')
-    w.addWilds(f)
-    save_setting('world', None, w)
-    settings['starting_town'] = t
-    settings['game_channel'] = None  # The public text channel where public events take place
+game_channel = None  # The public text channel where public events take place
 
 
-def save_setting(name, index, value):
-    subsetting = settings[name]
-    if index is not None:
-        subsetting[index] = value
-    else:
-        subsetting = value
-    settings[name] = subsetting
+def default_init(xWidth, yHeight):
+    world = gamespace.World(xWidth, yHeight)
+    example_town = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
+    world.addTown(example_town)
+    example_wilds = gamespace.Wilds(5, 2, 'The Ruined Forest')
+    world.addWilds(example_wilds)
+    world.StartingTown = example_town
+    return world
 
 
 @bot.event
@@ -62,7 +48,7 @@ async def on_server_remove(server: discord.Server):
 @bot.command(pass_context=True)
 async def register(ctx: discord.ext.commands.context.Context):
     member = ctx.message.author
-    if member.id in settings['users'].keys():
+    if member.id in world.Users.keys():
         await bot.say("You're already registered, dummy!")
         return
     await bot.say("Do you want to join the MUD? (say 'yes' to continue)")
@@ -73,14 +59,7 @@ async def register(ctx: discord.ext.commands.context.Context):
         user = MUDUser(member.id)
         await CreatePlayerCharacter(user)
         await bot.say("You've been registered, {}!".format((await bot.get_user_info(user.DiscordUserID)).name))
-        save_setting('users', user.DiscordUserID, user)
-
-
-async def check_member(m):
-    if m.id not in settings['users'].keys():
-        await bot.say("You're not registered yet!")
-        return False
-    return True
+        world.Users[user.DiscordUserID] = user
 
 
 @bot.command(pass_context=True)
@@ -88,7 +67,7 @@ async def whoami(ctx: discord.ext.commands.context.Context):
     member = ctx.message.author
     if not await check_member(member):
         return
-    user = settings['users'][member.id]
+    user = world.Users[member.id]
     await bot.say('User: {}'.format(member.name))
     await bot.say('Player Name: {}'.format(user.PlayerCharacter.Name))
     await bot.say('Class: {}'.format(user.PlayerCharacter.Class.Name))
@@ -100,14 +79,14 @@ async def whereami(ctx: discord.ext.commands.context.Context):
     member = ctx.message.author
     if not await check_member(member):
         return
-    user = settings['users'][member.id]
+    user = world.Users[member.id]
     message = "You are at " + str(user.Location) + '.'
-    if user.Location in settings['world'].Towns:
+    if user.Location in world.Towns:
         l = user.Location
-        message += 'You are also in the town ' + settings['world'].Map[l.X][l.Y].Name + '.'
-    if user.Location in settings['world'].Wilds:
+        message += 'You are also in the town ' + world.Map[l.X][l.Y].Name + '.'
+    if user.Location in world.Wilds:
         l = user.Location
-        message += 'You are also in the wilds, nicknamed ' + settings['world'].Map[l.X][l.Y].Name + '.'
+        message += 'You are also in the wilds, nicknamed ' + world.Map[l.X][l.Y].Name + '.'
     await bot.say(message)
 
 
@@ -116,7 +95,7 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     member = ctx.message.author
     if not await check_member(member):
         return
-    user = settings['users'][member.id]
+    user = world.Users[member.id]
     directions = ['n', 's', 'e', 'w']
     direction_vectors = [gamespace.Space(0, 1), gamespace.Space(0, -1), gamespace.Space(1, 0), gamespace.Space(-1, 0)]
     if dir_in not in directions:
@@ -124,24 +103,31 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
         return
     dir_index = directions.index(dir_in)
     new_location = user.Location + direction_vectors[dir_index]
-    world = settings['world']
     if new_location.X < 0 or new_location.Y < 0 or new_location.X > world.Width or new_location.Y > world.Height:
         await bot.say("Move would put you outside the map!")
         return
     user.Location = new_location
-    save_setting('users', user.DiscordUserID, user)
+    world.Users[user.DiscordUserID] = user
     await bot.say("Your new location is ({},{})".format(new_location.X, new_location.Y))
-    if user.Location in settings['world'].Towns:
+    if user.Location in world.Towns:
         locat = user.Location
-        await bot.say('You are also in the town ' + settings['world'].Map[locat.X][locat.Y].Name + '.')
-    if user.Location in settings['world'].Wilds:
+        await bot.say('You are also in the town ' + world.Map[locat.X][locat.Y].Name + '.')
+    if user.Location in world.Wilds:
         locat = user.Location
-        await bot.say('You are also in the wilds, nicknamed ' + settings['world'].Map[locat.X][locat.Y].Name + '.')
-        settings['world'].Map[locat.X][locat.Y].runEvent()
+        await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.X][locat.Y].Name + '.')
+        world.Map[locat.X][locat.Y].runEvent()
+
+
+async def check_member(m):
+    if m.id not in world.Users.keys():
+        await bot.say("You're not registered yet!")
+        return False
+    return True
 
 
 class MUDUser:
     DiscordUserID: str = None
+    PlayerCharacter: player.PlayerCharacter = None
     __x = 0
     __y = 0
 
@@ -150,16 +136,8 @@ class MUDUser:
 
     def __init__(self, discord_user_id: str):
         self.DiscordUserID = discord_user_id
-        self.__x = settings['starting_town'].X
-        self.__y = settings['starting_town'].Y
-
-    @property
-    def PlayerCharacter(self):
-        return settings['player_characters'][self.DiscordUserID]
-
-    @PlayerCharacter.setter
-    def PlayerCharacter(self, x: player.PlayerCharacter):
-        save_setting('player_characters', self.DiscordUserID, x)
+        self.__x = world.StartingTown.X
+        self.__y = world.StartingTown.Y
 
     @property
     def Location(self):
@@ -178,19 +156,19 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
     char.Name = response.content
     mud_user.PlayerCharacter = char
 
-threads = []
+
+threads = {}
 if __name__ == "__main__":
     # initialize the bot
-    default_init()
+    world = default_init(50, 50)
     tBot = threading.Thread(target=bot.run, args=(token,))
-    threads.append(tBot)
+    threads['bot'] = tBot
     tBot.start()
 
     # initialize the gui
     root = ui.Tk()
     root.geometry("1500x1500")
-    app = ui.Window(root, settings)
+    app = ui.Window(root, world)
     tGUI = threading.Thread(target=root.mainloop())
-    threads.append(tGUI)
+    threads['gui'] = tGUI
     tGUI.start()
-

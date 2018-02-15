@@ -71,6 +71,8 @@ class World:
     Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
     Towns = []
     Wilds = []
+    Users = {}
+    StartingTown: Town = None
 
     def __init__(self, width, height):
         self.Width = width
