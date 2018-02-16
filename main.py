@@ -169,6 +169,8 @@ if __name__ == "__main__":
     root = ui.Tk()
     root.geometry("1500x1500")
     app = ui.Window(root, world)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)  # close all threads on exit
+    root.after(app.REFRESH_RATE, app.update)  # set update hook
     tGUI = threading.Thread(target=root.mainloop())
     threads['gui'] = tGUI
     tGUI.start()

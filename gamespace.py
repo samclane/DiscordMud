@@ -42,7 +42,7 @@ class Town(Space):
     Industry: IndustryType = None
 
     def __init__(self, x, y, name, population, industry=None):
-        super().__init__(x, y)
+        super(Town, self).__init__(x, y)
         self.Name = name
         self.Population = population
         self.Industry = industry
@@ -54,7 +54,7 @@ class Wilds(Space):
     EventChances: dict = {}
 
     def __init__(self, x, y, name):
-        super().__init__(x, y)
+        super(Wilds, self).__init__(x, y)
         self.Name = name
 
     def addEvent(self, event, chance):
@@ -81,8 +81,8 @@ class World:
 
     def addTown(self, town: Town):
         self.Towns.append(town)
-        self.Map[town.X][town.Y] = town
+        self.Map[town.Y][town.X] = town
 
     def addWilds(self, wilds: Wilds):
         self.Wilds.append(wilds)
-        self.Map[wilds.X][wilds.Y] = wilds
+        self.Map[wilds.Y][wilds.X] = wilds
