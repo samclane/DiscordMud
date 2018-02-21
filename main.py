@@ -83,10 +83,10 @@ async def whereami(ctx: discord.ext.commands.context.Context):
     message = "You are at " + str(user.Location) + '.'
     if user.Location in world.Towns:
         l = user.Location
-        message += 'You are also in the town ' + world.Map[l.X][l.Y].Name + '.'
+        message += 'You are also in the town ' + world.Map[l.Y][l.X].Name + '.'
     if user.Location in world.Wilds:
         l = user.Location
-        message += 'You are also in the wilds, nicknamed ' + world.Map[l.X][l.Y].Name + '.'
+        message += 'You are also in the wilds, nicknamed ' + world.Map[l.Y][l.X].Name + '.'
     await bot.say(message)
 
 
@@ -97,7 +97,7 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
         return
     user = world.Users[member.id]
     directions = ['n', 's', 'e', 'w']
-    direction_vectors = [gamespace.Space(0, 1), gamespace.Space(0, -1), gamespace.Space(1, 0), gamespace.Space(-1, 0)]
+    direction_vectors = [gamespace.Space(-1, 0), gamespace.Space(1, 0), gamespace.Space(0, 1), gamespace.Space(0, -1)]
     if dir_in not in directions:
         await bot.say("Invalid direction given.")
         return
@@ -111,10 +111,10 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     await bot.say("Your new location is ({},{})".format(new_location.X, new_location.Y))
     if user.Location in world.Towns:
         locat = user.Location
-        await bot.say('You are also in the town ' + world.Map[locat.X][locat.Y].Name + '.')
+        await bot.say('You are also in the town ' + world.Map[locat.Y][locat.X].Name + '.')
     if user.Location in world.Wilds:
         locat = user.Location
-        await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.X][locat.Y].Name + '.')
+        await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.Y][locat.X].Name + '.')
         world.Map[locat.X][locat.Y].runEvent()
 
 
@@ -130,9 +130,6 @@ class MUDUser:
     PlayerCharacter: player.PlayerCharacter = None
     __x = 0
     __y = 0
-
-    # PlayerCharacter
-    # Location
 
     def __init__(self, discord_user_id: str):
         self.DiscordUserID = discord_user_id
