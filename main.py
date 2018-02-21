@@ -115,7 +115,7 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     if user.Location in world.Wilds:
         locat = user.Location
         await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.Y][locat.X].Name + '.')
-        world.Map[locat.X][locat.Y].runEvent()
+        world.Map[locat.Y][locat.X].runEvent()
 
 
 async def check_member(m):

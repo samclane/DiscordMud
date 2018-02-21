@@ -10,10 +10,12 @@ class EventType:
 class Event:
     Uid: str = None
     Type: EventType = None
+    Probability = 0.0
     FlavorText: str = ""
 
-    def __init__(self, e_type: EventType, flavor: str = None):
+    def __init__(self, e_type: EventType, probability, flavor: str = None):
         self.Type = e_type
+        self.Probability = probability
         self.Uid = str(uuid.uuid4())
         if flavor:
             self.FlavorText = flavor

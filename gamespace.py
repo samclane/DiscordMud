@@ -1,5 +1,6 @@
 from enum import Enum
-
+import numpy
+import events
 
 class Space:
     X = None
@@ -51,18 +52,21 @@ class Town(Space):
 class Wilds(Space):
     Name: str = None
     Events: [] = []
-    EventChances: dict = {}
 
     def __init__(self, x, y, name):
         super(Wilds, self).__init__(x, y)
         self.Name = name
+        self.null_event = events.Event(None, 1.0, "Null Event")
+        self.Events.append(self.null_event)
 
-    def addEvent(self, event, chance):
+    def addEvent(self, event):
         self.Events.append(event)
-        self.EventChances[event.Uid] = chance
+        self.null_event.Probability -= event.Probability
 
     def runEvent(self):
-        pass
+        n = 1
+        result = numpy.random.choice(self.Events, size=n, p=[event.Probability for event in self.Events])[0]
+        return result
 
 
 class World:
