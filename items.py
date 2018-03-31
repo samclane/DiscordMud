@@ -49,10 +49,10 @@ class EquipmentSet:
                "Feet: {}\r\n" \
                "MainHand: {}\r\n" \
                "OffHand: {}\r\n".format(
-                self.Head.Name,
-                self.Chest.Name,
-                self.Legs.Name,
-                self.Feet.Name,
-                self.MainHand.Name,
-                self.OffHand.Name
+            self.Head.Name,
+            self.Chest.Name,
+            self.Legs.Name,
+            self.Feet.Name,
+            self.MainHand.Name,
+            self.OffHand.Name
         )

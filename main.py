@@ -4,6 +4,7 @@ import threading
 import discord
 from discord.ext import commands
 
+import events
 import gamespace
 import player
 import ui
@@ -21,11 +22,17 @@ world = None
 game_channel = None  # The public text channel where public events take place
 
 
+# my test routine to initialize the world. Should be replaced with ui stuff eventually
 def default_init(xWidth, yHeight):
     world = gamespace.World(xWidth, yHeight)
     example_town = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
     world.addTown(example_town)
     example_wilds = gamespace.Wilds(5, 2, 'The Ruined Forest')
+    event1 = events.CombatEvent(.5, "Test monster appears", "TODO: Monster class", "TODO: conditions class")
+    example_wilds.addEvent(event1)
+    event2 = events.EncounterEvent(.5, "You found a friendly scav", {"Give meds": "Get $100", "Kill him": "Get pistol"},
+                                   "TODO: NPC class")
+    example_wilds.addEvent(event2)
     world.addWilds(example_wilds)
     world.StartingTown = example_town
     return world
@@ -115,7 +122,7 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     if user.Location in world.Wilds:
         locat = user.Location
         await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.Y][locat.X].Name + '.')
-        world.Map[locat.Y][locat.X].runEvent()
+        world.Map[locat.Y][locat.X].runEvent(user.PlayerCharacter)
 
 
 async def check_member(m):

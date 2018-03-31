@@ -21,4 +21,3 @@ class PlayerCharacter:
 
     def __init__(self, user_id=None):
         self.UserId = user_id
-

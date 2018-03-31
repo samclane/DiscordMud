@@ -1,6 +1,9 @@
 from enum import Enum
+
 import numpy
+
 import events
+
 
 class Space:
     X = None
@@ -56,17 +59,17 @@ class Wilds(Space):
     def __init__(self, x, y, name):
         super(Wilds, self).__init__(x, y)
         self.Name = name
-        self.null_event = events.Event(None, 1.0, "Null Event")
+        self.null_event = events.Event(1.0, "Null Event")
         self.Events.append(self.null_event)
 
     def addEvent(self, event):
         self.Events.append(event)
         self.null_event.Probability -= event.Probability
 
-    def runEvent(self):
+    def runEvent(self, pc):
         n = 1
         result = numpy.random.choice(self.Events, size=n, p=[event.Probability for event in self.Events])[0]
-        return result
+        result.run(pc)
 
 
 class World:

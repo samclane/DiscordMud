@@ -1,6 +1,8 @@
-from tkinter import *
 import os
+from tkinter import *
+
 import gamespace
+
 
 class Window(Frame):
     REFRESH_RATE = 2000
@@ -41,7 +43,7 @@ class Window(Frame):
             y1, x1 = MapScale * square.X, MapScale * square.Y
             y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
             self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
-            
+
     def update(self):
         self.master.player = player = PhotoImage(file=r'res/player.gif')
         MapScale = 20
