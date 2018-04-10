@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 
-
 import gamespace
 
 
@@ -102,7 +101,11 @@ class Window(Frame):
         self.init_map()
 
     def add_wilds(self):
-        pass
+        if self.gameWorld is None:
+            messagebox.showerror("No world", "Please make a world in order to add a wilds.")
+            return
+        d = NewWildsDialog(self.master)
+        self.gameWorld.addWilds(d.result)
 
     def add_town(self):
         if self.gameWorld is None:
@@ -110,7 +113,6 @@ class Window(Frame):
             return
         d = NewTownDialog(self.master)
         self.gameWorld.addTown(d.result, d.IsStartingTown)
-
 
     def on_closing(self):
         self.master.destroy()
@@ -239,6 +241,7 @@ class NewWorldDialog(Dialog):
 
 class NewTownDialog(Dialog):
     result = None
+    IsStartingTown = False
 
     def body(self, master):
         Label(master, text="xCoord:").grid(row=0)
@@ -255,7 +258,8 @@ class NewTownDialog(Dialog):
         self.Industry = ttk.Combobox(master)
         self.Industry['values'] = list(gamespace.IndustryType)
         self.st = IntVar()
-        self.StartingTownButton = Checkbutton(master, text="Starting Town?:", variable=self.st)
+        self.StartingTownButton = Checkbutton(master, text="Starting Town?:",
+                                              variable=self.st)  # self.st is hacky way to store button value until validation
 
         self.x.grid(row=0, column=1)
         self.y.grid(row=1, column=1)
@@ -271,9 +275,35 @@ class NewTownDialog(Dialog):
         y = int(self.y.get())
         name = str(self.Name.get())
         pop = int(self.Population.get())
-        industry = eval("gamespace." + self.Industry.get())
+        industry = eval("gamespace." + self.Industry.get())  # TODO: Find a way to make this not use eval
         self.IsStartingTown = bool(self.st.get())
 
         # TODO validate this stuff
         self.result = gamespace.Town(x, y, name, pop, industry)
+        return 1
+
+class NewWildsDialog(Dialog):
+    result = None
+
+    def body(self, master):
+        Label(master, text="xWidth:").grid(row=0)
+        Label(master, text="yHeight:").grid(row=1)
+        Label(master, text="Name:").grid(row=2)
+
+        self.x = Entry(master)
+        self.y = Entry(master)
+        self.Name = Entry(master)
+
+        self.x.grid(row=0, column=1)
+        self.y.grid(row=1, column=1)
+        self.Name.grid(row=2, column=1)
+        return self.x  # initial focus
+
+    def validate(self):
+        x = int(self.x.get())
+        y = int(self.y.get())
+        name = str(self.Name.get())
+
+        # TODO Validate this stuff
+        self.result = gamespace.Wilds(x, y, name)
         return 1

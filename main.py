@@ -1,5 +1,6 @@
 import os
 import threading
+import time
 
 import discord
 from discord.ext import commands
@@ -8,7 +9,6 @@ import events
 import gamespace
 import player
 import ui
-import time
 
 token = os.environ.get('DISCORD_BOT_TOKEN')
 
@@ -183,12 +183,12 @@ if __name__ == "__main__":
     app = ui.Window(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)  # close all threads on exit
     root.after(app.REFRESH_RATE, app.update)  # set update hook
+
     # my hacky way of updating the world
-    worldListener = threading.Thread(target=listenForWorld, args=(app, ))
+    worldListener = threading.Thread(target=listenForWorld, args=(app,))
     threads['worldlistener'] = worldListener
     worldListener.start()
 
     # start GUI (LEAVE THIS LAST)
     # apparently can't run tk in a non-main thread
     root.mainloop()
-
