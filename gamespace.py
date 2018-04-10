@@ -86,9 +86,11 @@ class World:
         self.Height = height
         self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]
 
-    def addTown(self, town: Town):
+    def addTown(self, town: Town, isStartingTown=False):
         self.Towns.append(town)
         self.Map[town.Y][town.X] = town
+        if isStartingTown:
+            self.StartingTown = town
 
     def addWilds(self, wilds: Wilds):
         self.Wilds.append(wilds)

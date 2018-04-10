@@ -8,6 +8,7 @@ import events
 import gamespace
 import player
 import ui
+import time
 
 token = os.environ.get('DISCORD_BOT_TOKEN')
 
@@ -161,20 +162,33 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
     mud_user.PlayerCharacter = char
 
 
+def listenForWorld(app):
+    global world
+    world = app.gameWorld
+    time.sleep(.25)
+    listenForWorld(app)
+
+
 threads = {}
 if __name__ == "__main__":
     # initialize the bot
-    world = default_init(50, 50)
+    # world = default_init(50, 50)
     tBot = threading.Thread(target=bot.run, args=(token,))
     threads['bot'] = tBot
     tBot.start()
 
     # initialize the gui
     root = ui.Tk()
-    root.geometry("1500x1500")
-    app = ui.Window(root, world)
+    root.geometry("500x500")
+    app = ui.Window(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)  # close all threads on exit
     root.after(app.REFRESH_RATE, app.update)  # set update hook
-    tGUI = threading.Thread(target=root.mainloop())
-    threads['gui'] = tGUI
-    tGUI.start()
+    # my hacky way of updating the world
+    worldListener = threading.Thread(target=listenForWorld, args=(app, ))
+    threads['worldlistener'] = worldListener
+    worldListener.start()
+
+    # start GUI (LEAVE THIS LAST)
+    # apparently can't run tk in a non-main thread
+    root.mainloop()
+
