@@ -2,12 +2,15 @@ import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
+from math import floor
 
 import gamespace
 
 
 class Window(Frame):
     REFRESH_RATE = 2000
+    MapScale = 20
+
     img_dict = {}
 
     def __init__(self, master=None):
@@ -62,31 +65,26 @@ class Window(Frame):
             y1, x1 = MapScale * square.X, MapScale * square.Y
             y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
             self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
+        #bind listeners
+        self.MapCanvas.bind("<Button-1>", self.click)
 
     def update(self):
         if self.gameWorld is None:
             self.master.after(self.REFRESH_RATE, self.update)
             return
-        MapScale = 20
         Users = self.gameWorld.Users
-        for user in Users.values():
-            square = user.Location
-            y1, x1 = MapScale * square.X, MapScale * square.Y
-            # y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
-            # self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
-            self.MapCanvas.create_image(x1, y1, image=self.master.player, anchor=NW)
         for town in self.gameWorld.Towns:
-            y1, x1 = MapScale * town.X, MapScale * town.Y
-            self.MapCanvas.create_image(x1, y1, image=self.master.town, anchor=NW)
+            y1, x1 = self.MapScale * town.X, self.MapScale * town.Y
+            self.MapCanvas.create_image(x1, y1, image=self.master.town, anchor=NW, tags="town")
         for wild in self.gameWorld.Wilds:
-            y1, x1 = MapScale * wild.X, MapScale * wild.Y
-            self.MapCanvas.create_image(x1, y1, image=self.master.wild, anchor=NW)
+            y1, x1 = self.MapScale * wild.X, self.MapScale * wild.Y
+            self.MapCanvas.create_image(x1, y1, image=self.master.wild, anchor=NW, tags="wilds")
         for user in Users.values():
             square = user.Location
-            y1, x1 = MapScale * square.X, MapScale * square.Y
+            y1, x1 = self.MapScale * square.X, self.MapScale * square.Y
             # y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
             # self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
-            self.MapCanvas.create_image(x1, y1, image=self.master.player, anchor=NW)
+            self.MapCanvas.create_image(x1, y1, image=self.master.player, anchor=NW, tags="pc")
         self.master.after(self.REFRESH_RATE, self.update)
 
     def new_world(self):
@@ -113,6 +111,21 @@ class Window(Frame):
             return
         d = NewTownDialog(self.master)
         self.gameWorld.addTown(d.result, d.IsStartingTown)
+
+    def click(self, event):
+        canvas = self.MapCanvas
+        if canvas.find_withtag(CURRENT):
+            # canvas.itemconfig(CURRENT, state=HIDDEN)
+            x, y = floor(event.x / self.MapScale), floor(event.y / self.MapScale)
+            tile = canvas.find_closest(event.x, event.y)[0]
+            tags = canvas.gettags(tile)
+            print(tags)
+            tid = canvas.create_text(canvas.coords(CURRENT), text="({}, {})".format(x, y), font=("Purisa", 24), fill="orange")
+            canvas.update_idletasks()
+            canvas.after(1000)
+            # canvas.itemconfig(CURRENT, state=NORMAL)
+            canvas.delete(tid)
+
 
     def on_closing(self):
         self.master.destroy()
