@@ -164,10 +164,9 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
 
 def listenForWorld(app):
     global world
-    world = app.gameWorld
-    time.sleep(.25)
-    listenForWorld(app)
-
+    while True:
+        world = app.gameWorld
+        time.sleep(.25)
 
 threads = {}
 if __name__ == "__main__":
