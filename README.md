@@ -25,6 +25,6 @@ Now it is time to create a character. The prefix for the bot is `*` by default. 
 
 ![character window](https://i.imgur.com/uvesmNP.png)
 
-You can now move your character around by entering `*n`, `*e`, `*s`, and `*w` into Discord chat. 
+You can now move your character around by entering `*go`, then `n`, `e`, `s`, `w`, into chat. 
 
-To be continued...
+In order to see an image of the world, type `*world`. You don't even need to be registered. The bot should DM you a picture shortly. 
