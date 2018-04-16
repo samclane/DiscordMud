@@ -19,6 +19,7 @@ description = '''Attempt at a discord MUD server'''
 bot = commands.Bot(command_prefix='*', description=description)
 
 world = None
+app = None
 
 game_channel = None  # The public text channel where public events take place
 
@@ -125,6 +126,14 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
         await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.Y][locat.X].Name + '.')
         world.Map[locat.Y][locat.X].runEvent(user.PlayerCharacter)
 
+@bot.command(pass_context=True)
+async def world(ctx):
+    '''Get a picture of the current gameworld'''
+    # we need to take a picture of the canvas
+    pic_path = app.get_canvas_image()
+    with open(pic_path, 'rb') as f:
+        await bot.send_file(ctx.message.author, f)
+
 
 async def check_member(m):
     if m.id not in world.Users.keys():
@@ -162,7 +171,7 @@ async def CreatePlayerCharacter(mud_user: MUDUser):
     mud_user.PlayerCharacter = char
 
 
-def listenForWorld(app):
+def listenForWorld():
     global world
     while True:
         world = app.gameWorld
@@ -184,7 +193,7 @@ if __name__ == "__main__":
     root.after(app.REFRESH_RATE, app.update)  # set update hook
 
     # my hacky way of updating the world
-    worldListener = threading.Thread(target=listenForWorld, args=(app,))
+    worldListener = threading.Thread(target=listenForWorld)
     threads['worldlistener'] = worldListener
     worldListener.start()
 

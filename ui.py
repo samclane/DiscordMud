@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from math import floor
+from PIL import ImageGrab
 
 import gamespace
 
@@ -126,6 +127,16 @@ class Window(Frame):
             # canvas.itemconfig(CURRENT, state=NORMAL)
             canvas.delete(tid)
 
+    def get_canvas_image(self):
+        root = self.master
+        widget = self.MapCanvas
+        FILE_PATH = "img.png"
+        x = root.winfo_rootx() + widget.winfo_x()
+        y = root.winfo_rooty() + widget.winfo_y()
+        x1 = x + widget.winfo_width()
+        y1 = y + widget.winfo_height()
+        ImageGrab.grab().crop((x, y, x1, y1)).save(FILE_PATH)
+        return FILE_PATH
 
     def on_closing(self):
         self.master.destroy()
