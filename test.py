@@ -3,7 +3,7 @@ import unittest
 from gamespace import *
 from items import *
 from player import *
-
+from events import *
 
 class PlayerTest(unittest.TestCase):
 
@@ -31,9 +31,22 @@ class PlayerTest(unittest.TestCase):
 
     def test_world(self):
         w = World(50, 50)
-        t = Town(1, 1, 'Braxton', 50, IndustryType.Farming)
+        t = Town(1, 1, 'Braxton', 50, FarmingIndustry)
         w.addTown(t)
         self.assertIn(t, w.Towns)
         i = Wilds(2, 2, 'Hidden Forrest')
         w.addWilds(i)
         self.assertIn(i, w.Wilds)
+
+    def test_run_event(self):
+        w = World(50, 50)
+        i = Wilds(2, 2, 'Hidden Forrest')
+        e = EncounterEvent(.5, "You find a penny in the road.",
+                           {"Pick it up": "Gain a penny", "Leave it": "Gain nothing"})
+        i.addEvent(e)
+        w.addWilds(i)
+        player = PlayerCharacter(None)
+        player.Name = "Algor"
+        player.Class = WandererClass
+        player.HitPoints = 100
+        i.runEvent(player)

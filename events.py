@@ -8,7 +8,7 @@ class Event:
     Probability = 0.0
     FlavorText: str = ""
 
-    def __init__(self, probability, flavor):
+    def __init__(self, probability: float, flavor: str):
         self.Probability = probability
         self.Uid = str(uuid.uuid4())
         if flavor:
@@ -22,7 +22,7 @@ class CombatEvent(Event):
     Enemies: [] = []
     SpecialConditions: [] = []
 
-    def __init__(self, probability, flavor, enemies, conditions=None):
+    def __init__(self, probability: float, flavor: str, enemies: list, conditions=None):
         super().__init__(probability, flavor)
         self.Enemies = enemies
         self.SpecialConditions = conditions
@@ -36,13 +36,15 @@ class EncounterEvent(Event):
     Outcomes: {} = {}
     NPCInvolved: npc.NPC = None
 
-    def __init__(self, probability, flavor, choices_dict, npc=None):
+    def __init__(self, probability: float, flavor: str, choices_dict: dict, npc: npc.NPC = None):
         super().__init__(probability, flavor)
         self.ChoiceDict = choices_dict
         self.NPCInvolved = npc
 
     def run(self, pc):
         print("Ahh, encounter!")
+        if self.FlavorText:
+            print(self.FlavorText)
 
 
 class MerchantEvent(Event):

@@ -126,6 +126,7 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
         await bot.say('You are also in the wilds, nicknamed ' + world.Map[locat.Y][locat.X].Name + '.')
         world.Map[locat.Y][locat.X].runEvent(user.PlayerCharacter)
 
+
 @bot.command(pass_context=True)
 async def world(ctx):
     '''Get a picture of the current gameworld'''
@@ -176,6 +177,7 @@ def listenForWorld():
     while True:
         world = app.gameWorld
         time.sleep(.25)
+
 
 threads = {}
 if __name__ == "__main__":

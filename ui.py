@@ -1,8 +1,9 @@
 import os
+from math import floor
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from math import floor
+
 from PIL import ImageGrab
 
 import gamespace
@@ -10,7 +11,7 @@ import gamespace
 
 class Window(Frame):
     REFRESH_RATE = 2000
-    MapScale = 20
+    MapScale = 64
 
     img_dict = {}
 
@@ -42,11 +43,11 @@ class Window(Frame):
             return
         self.MapCanvas.delete("all")
         Map = self.gameWorld.Map
-        MapScale = 20
-        self.master.grass = grass = PhotoImage(file=r'res/grass.gif')
-        self.master.town = town = PhotoImage(file=r'res/town.gif')
-        self.master.wild = wild = PhotoImage(file=r'res/wild.gif')
-        self.master.player = player = PhotoImage(file=r'res/player.gif')
+        MapScale = self.MapScale
+        self.master.grass = grass = PhotoImage(file=r'res/grass.png')
+        self.master.town = town = PhotoImage(file=r'res/town.png')
+        self.master.wild = wild = PhotoImage(file=r'res/wild.png')
+        self.master.player = player = PhotoImage(file=r'res/player.png')
         for row in Map:
             for square in row:
                 y1, x1 = MapScale * square.X, MapScale * square.Y
@@ -66,7 +67,7 @@ class Window(Frame):
             y1, x1 = MapScale * square.X, MapScale * square.Y
             y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
             self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
-        #bind listeners
+        # bind listeners
         self.MapCanvas.bind("<Button-1>", self.click)
 
     def update(self):
@@ -121,7 +122,8 @@ class Window(Frame):
             tile = canvas.find_closest(event.x, event.y)[0]
             tags = canvas.gettags(tile)
             print(tags)
-            tid = canvas.create_text(canvas.coords(CURRENT), text="({}, {})".format(x, y), font=("Purisa", 24), fill="orange")
+            tid = canvas.create_text(canvas.coords(CURRENT), text="({}, {})".format(x, y), font=("Purisa", 24),
+                                     fill="orange")
             canvas.update_idletasks()
             canvas.after(1000)
             # canvas.itemconfig(CURRENT, state=NORMAL)
@@ -307,6 +309,7 @@ class NewTownDialog(Dialog):
         # TODO validate this stuff
         self.result = gamespace.Town(x, y, name, pop, industry)
         return 1
+
 
 class NewWildsDialog(Dialog):
     result = None
