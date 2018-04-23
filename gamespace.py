@@ -28,14 +28,18 @@ class IndustryType(object):
     Name = "Null"
     pass
 
+
 class MiningIndustry(IndustryType):
     Name = "Mining"
+
 
 class FarmingIndustry(IndustryType):
     Name = "Farming"
 
+
 class SmithingIndustry(IndustryType):
     Name = "Smithing"
+
 
 class WoodworkingInudstry(IndustryType):
     Name = "Woodworking"
@@ -63,7 +67,7 @@ class Wilds(Space):
         self.null_event = events.Event(1.0, "Null Event")
         self.Events.append(self.null_event)
 
-    def addEvent(self, event):
+    def addEvent(self, event: events.Event):
         self.Events.append(event)
         self.null_event.Probability -= event.Probability
 
