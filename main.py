@@ -27,7 +27,7 @@ game_channel = None  # The public text channel where public events take place
 # my test routine to initialize the world. Should be replaced with ui stuff eventually
 def default_init(xWidth, yHeight):
     world = gamespace.World(xWidth, yHeight)
-    example_town = gamespace.Town(5, 3, 'Braxton', 53, gamespace.IndustryType.Mining)
+    example_town = gamespace.Town(5, 3, 'Braxton', 53, gamespace.MiningIndustry)
     world.addTown(example_town)
     example_wilds = gamespace.Wilds(5, 2, 'The Ruined Forest')
     event1 = events.CombatEvent(.5, "Test monster appears", "TODO: Monster class", "TODO: conditions class")

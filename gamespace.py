@@ -1,5 +1,3 @@
-from enum import Enum
-
 import numpy
 
 import events
@@ -26,18 +24,21 @@ class Space:
         return self.X + 100 * self.Y
 
 
-class IndustryType(Enum):
-    Mining = 1
-    Farming = 2
-    Smithing = 3
-    Woodworking = 4
+class IndustryType(object):
+    Name = "Null"
+    pass
 
+class MiningIndustry(IndustryType):
+    Name = "Mining"
 
-class CardinalDirection(Enum):
-    NORTH = 0
-    SOUTH = 1
-    EAST = 2
-    WEST = 3
+class FarmingIndustry(IndustryType):
+    Name = "Farming"
+
+class SmithingIndustry(IndustryType):
+    Name = "Smithing"
+
+class WoodworkingInudstry(IndustryType):
+    Name = "Woodworking"
 
 
 class Town(Space):

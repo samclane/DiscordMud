@@ -280,7 +280,9 @@ class NewTownDialog(Dialog):
         self.Name = Entry(master)
         self.Population = Entry(master)
         self.Industry = ttk.Combobox(master)
-        self.Industry['values'] = list(gamespace.IndustryType)
+        # self.Industry['values'] = list(gamespace.IndustryType)
+        IndustryType = gamespace.IndustryType
+        self.Industry['values'] = [industry.Name for industry in vars()['IndustryType'].__subclasses__()]
         self.st = IntVar()
         self.StartingTownButton = Checkbutton(master, text="Starting Town?:",
                                               variable=self.st)  # self.st is hacky way to store button value until validation
@@ -299,7 +301,7 @@ class NewTownDialog(Dialog):
         y = int(self.y.get())
         name = str(self.Name.get())
         pop = int(self.Population.get())
-        industry = eval("gamespace." + self.Industry.get())  # TODO: Find a way to make this not use eval
+        industry = eval("gamespace." + self.Industry.get() + "Industry")  # TODO: Find a way to make this not use eval
         self.IsStartingTown = bool(self.st.get())
 
         # TODO validate this stuff
