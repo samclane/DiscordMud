@@ -108,11 +108,11 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
     directions = ['n', 's', 'e', 'w']
     direction_vectors = [gamespace.Space(-1, 0), gamespace.Space(1, 0), gamespace.Space(0, 1), gamespace.Space(0, -1)]
     if dir_in not in directions:
-        await bot.say("Invalid direction given.")
+        await bot.say("Debug: Invalid direction given.")
         return
     dir_index = directions.index(dir_in)
     new_location = user.Location + direction_vectors[dir_index]
-    if new_location.X < 0 or new_location.Y < 0 or new_location.X > world.Width or new_location.Y > world.Height:
+    if new_location.X < 0 or new_location.Y < 0 or new_location.X > world.Width - 1 or new_location.Y > world.Height - 1:
         await bot.say("Move would put you outside the map!")
         return
     user.Location = new_location
@@ -129,11 +129,39 @@ async def go(ctx: discord.ext.commands.context.Context, dir_in: str):
 
 @bot.command(pass_context=True)
 async def world(ctx):
-    '''Get a picture of the current gameworld'''
+    """ Get a picture of the current gameworld. """
     # we need to take a picture of the canvas
     pic_path = app.get_canvas_image()
     with open(pic_path, 'rb') as f:
         await bot.send_file(ctx.message.author, f)
+
+
+@bot.group(name="town", pass_context=True)
+async def _town(ctx):
+    """ Menu to perform town interactions. """
+    # Make checks to ensure user is in a town
+    member = ctx.message.author
+    if not await check_member(member):
+        return
+    user = world.Users[member.id]
+    if user.Location in world.Towns:
+        await bot.say("Debug: You're in a town!")
+    else:
+        await bot.say("Debug: You're NOT in a town!")
+    if ctx.invoked_subcommand is None:
+        pass
+
+
+@_town.command(pass_context=True)
+async def inn(ctx):
+    """ Rest to restore hitpoints. """
+    member = ctx.message.author
+    user = world.Users[member.id]
+    locat = user.Location
+    town = world.Map[locat.Y][locat.X]
+
+    # Restore players' hitpoints
+    user.PlayerCharacter.HitPoints = user.PlayerCharacter.HitPointsMax
 
 
 async def check_member(m):

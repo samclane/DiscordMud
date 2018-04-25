@@ -10,10 +10,8 @@ import gamespace
 
 
 class Window(Frame):
-    REFRESH_RATE = 2000
+    REFRESH_RATE = 1000 // 30
     MapScale = 64
-
-    img_dict = {}
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -42,31 +40,11 @@ class Window(Frame):
             print("Tried to init a null world. Ignoring.")
             return
         self.MapCanvas.delete("all")
-        Map = self.gameWorld.Map
-        MapScale = self.MapScale
-        self.master.grass = grass = PhotoImage(file=r'res/grass.png')
-        self.master.town = town = PhotoImage(file=r'res/town.png')
-        self.master.wild = wild = PhotoImage(file=r'res/wild.png')
-        self.master.player = player = PhotoImage(file=r'res/player.png')
-        for row in Map:
-            for square in row:
-                y1, x1 = MapScale * square.X, MapScale * square.Y
-                # y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
-                if type(square) is gamespace.Space:
-                    self.MapCanvas.create_image(x1, y1, image=grass, anchor=NW)
-                    self.img_dict[square] = grass
-                elif type(square) is gamespace.Wilds:
-                    self.MapCanvas.create_image(x1, y1, image=wild, anchor=NW)
-                    self.img_dict[square] = wild
-                elif type(square) is gamespace.Town:
-                    self.MapCanvas.create_image(x1, y1, image=town, anchor=NW)
-                    self.img_dict[square] = town
-        Users = self.gameWorld.Users
-        for user in Users.values():
-            square = user.Location
-            y1, x1 = MapScale * square.X, MapScale * square.Y
-            y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
-            self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
+        self.master.grass = PhotoImage(file=r'res/grass.png')
+        self.master.town = PhotoImage(file=r'res/town.png')
+        self.master.wild = PhotoImage(file=r'res/wild.png')
+        self.master.player = PhotoImage(file=r'res/player.png')
+        self.update()
         # bind listeners
         self.MapCanvas.bind("<Button-1>", self.click)
 
@@ -74,18 +52,23 @@ class Window(Frame):
         if self.gameWorld is None:
             self.master.after(self.REFRESH_RATE, self.update)
             return
-        Users = self.gameWorld.Users
+        self.MapCanvas.delete("all")
+        Map = self.gameWorld.Map
+        MapScale = self.MapScale
+        for row in Map:
+            for square in row:
+                y1, x1 = MapScale * square.X, MapScale * square.Y
+                self.MapCanvas.create_image(x1, y1, image=self.master.grass, anchor=NW, tags="grass")
         for town in self.gameWorld.Towns:
             y1, x1 = self.MapScale * town.X, self.MapScale * town.Y
             self.MapCanvas.create_image(x1, y1, image=self.master.town, anchor=NW, tags="town")
         for wild in self.gameWorld.Wilds:
             y1, x1 = self.MapScale * wild.X, self.MapScale * wild.Y
             self.MapCanvas.create_image(x1, y1, image=self.master.wild, anchor=NW, tags="wilds")
+        Users = self.gameWorld.Users
         for user in Users.values():
             square = user.Location
-            y1, x1 = self.MapScale * square.X, self.MapScale * square.Y
-            # y2, x2 = MapScale * (square.X + 1), MapScale * (square.Y + 1)
-            # self.MapCanvas.create_rectangle(x1, y1, x2, y2, fill='#000000')
+            y1, x1 = MapScale * square.X, MapScale * square.Y
             self.MapCanvas.create_image(x1, y1, image=self.master.player, anchor=NW, tags="pc")
         self.master.after(self.REFRESH_RATE, self.update)
 
