@@ -69,6 +69,7 @@ async def register(ctx: discord.ext.commands.context.Context):
         await CreatePlayerCharacter(user)
         await bot.say("You've been registered, {}!".format((await bot.get_user_info(user.DiscordUserID)).name))
         world.Users[user.DiscordUserID] = user
+        app.add_user(user)
 
 
 @bot.command(pass_context=True)

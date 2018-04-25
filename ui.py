@@ -22,8 +22,16 @@ class Window(Frame):
     def init_window(self):
         self.master.title("DiscordMUD")
         self.pack(fill=BOTH, expand=1)
-        self.MapCanvas = Canvas(self, width=1450, height=1450)
-        self.MapCanvas.pack(expand=YES, fill=BOTH)
+        self.MapCanvas = Canvas(self, width=300, height=300, scrollregion=(0, 0, 500, 500))
+        hbar = Scrollbar(self, orient=HORIZONTAL)
+        hbar.pack(side=BOTTOM, fill=X)
+        hbar.config(command=self.MapCanvas.xview)
+        vbar = Scrollbar(self, orient=VERTICAL)
+        vbar.pack(side=RIGHT, fill=Y)
+        vbar.config(command=self.MapCanvas.yview)
+        self.MapCanvas.config(width=300, height=300)
+        self.MapCanvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+        self.MapCanvas.pack(side=LEFT, expand=YES, fill=BOTH)
         # create a toplevel menu
         menubar = Menu(self.master)
         filemenu = Menu(menubar, tearoff=0)
@@ -34,6 +42,10 @@ class Window(Frame):
         menubar.add_command(label="Quit", command=self.on_closing)
         # display the menu
         self.master.config(menu=menubar)
+        # create a treeview
+        self.UserTree = ttk.Treeview(self.master, show='tree')
+        self.UserTree.insert('', 'end', 'users', text="Users Connected: ", open=True)
+        self.UserTree.pack(side=RIGHT, expand=YES, fill=BOTH)
 
     def init_map(self):
         if self.gameWorld is None:
@@ -53,6 +65,7 @@ class Window(Frame):
             self.master.after(self.REFRESH_RATE, self.update)
             return
         self.MapCanvas.delete("all")
+
         Map = self.gameWorld.Map
         MapScale = self.MapScale
         for row in Map:
@@ -71,6 +84,9 @@ class Window(Frame):
             y1, x1 = MapScale * square.X, MapScale * square.Y
             self.MapCanvas.create_image(x1, y1, image=self.master.player, anchor=NW, tags="pc")
         self.master.after(self.REFRESH_RATE, self.update)
+
+    def add_user(self, user):
+        self.UserTree.insert('users', 'end', text=user.DiscordUserID)
 
     def new_world(self):
         if self.gameWorld is not None:
@@ -106,7 +122,10 @@ class Window(Frame):
             tags = canvas.gettags(tile)
             print(tags)
             tid = canvas.create_text(canvas.coords(CURRENT), text="({}, {})".format(x, y), font=("Purisa", 24),
-                                     fill="orange")
+                                     fill="black")
+            bbox = canvas.bbox(tid)
+            rect_item = canvas.create_rectangle(bbox, outline="black", fill="white")
+            canvas.tag_raise(tid, rect_item)
             canvas.update_idletasks()
             canvas.after(1000)
             # canvas.itemconfig(CURRENT, state=NORMAL)
