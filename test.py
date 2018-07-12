@@ -1,9 +1,9 @@
 import unittest
 
-from gamespace import *
-from items import *
-from player import *
-from events import *
+from gamelogic.gamespace import *
+from gamelogic.items import *
+from gamelogic.player import *
+from gamelogic.events import *
 
 class PlayerTest(unittest.TestCase):
 

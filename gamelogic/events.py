@@ -1,8 +1,5 @@
 import uuid
 
-import npc
-
-
 class Event:
     Uid: str = None
     Probability = 0.0
@@ -28,15 +25,15 @@ class CombatEvent(Event):
         self.SpecialConditions = conditions
 
     def run(self, pc):
-        print("Ahhh, we're in combat!")
+        print("We're in combat!")
 
 
 class EncounterEvent(Event):
     Choices: [] = []
     Outcomes: {} = {}
-    NPCInvolved: npc.NPC = None
+    NPCInvolved = None
 
-    def __init__(self, probability: float, flavor: str, choices_dict: dict, npc: npc.NPC = None):
+    def __init__(self, probability: float, flavor: str, choices_dict: dict, npc=None):
         super().__init__(probability, flavor)
         self.ChoiceDict = choices_dict
         self.NPCInvolved = npc
@@ -55,4 +52,4 @@ class MerchantEvent(Event):
         self.Items = items
 
     def run(self, pc):
-        print("Ahhh, merchant!")
+        print("Merchant encountered!")
