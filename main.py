@@ -49,6 +49,8 @@ if __name__ == "__main__":
     threads['bot'] = tBot
     tBot.start()
     main_window = ui.MainWindow(app, world)
+    pi.registered.connect(main_window.update)
+    pi.moved.connect(main_window.update)
     sys.exit(app.exec_())
 
     """

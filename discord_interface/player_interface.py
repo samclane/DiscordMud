@@ -96,7 +96,7 @@ class PlayerInterface(QObject):
 
         # Generate new location based on previous, and check if out-of-bounds
         dir_index = directions.index(direction)
-        direction_vectors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        direction_vectors = [(0, -1), (0, 1), (1, 0), (-1, 0)]
         if pc.attemptMove(direction_vectors[dir_index]):
             await self.bot.say("Your new location is {}".format(str(pc.Location)))
             self.moved.emit(pc)
