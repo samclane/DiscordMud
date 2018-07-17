@@ -18,11 +18,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.worldFrame)
         self.worldFrame.msg2Statusbar[str].connect(self.statusbar.showMessage)
 
-        exitAct = QAction(QIcon('exit.png'), '&Exit', self)
+        exitAct = QAction(QIcon(), '&Exit', self)
         exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(app.quit)
 
-        resetAct = QAction(QIcon('none.png'), '&Reset', self)
+        resetAct = QAction(QIcon(), '&Reset', self)
         resetAct.setStatusTip('Reset the viewport to default view')
         resetAct.triggered.connect(self.worldFrame.resetViewport)
 
@@ -127,5 +127,9 @@ class WorldFrame(QFrame):
     def mouseMoveEvent(self, event):
         ex, ey = event.x(), event.y()
         gridx, gridy = self.pixToGrid(ex, ey)
-        self.msg2Statusbar.emit("({}, {})".format(int(gridx), int(gridy)))
-        self.update()
+        landmark = " "
+        if 0 < gridx < self.world.Width and 0 < gridy < self.world.Height:
+            space = self.world.Map[gridy][gridx]
+            if space in self.world.Towns or space in self.world.Wilds:
+                landmark += space.Name
+        self.msg2Statusbar.emit("({}, {}) {}".format(int(gridx), int(gridy), landmark))
