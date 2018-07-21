@@ -28,6 +28,7 @@ def default_init(xWidth, yHeight):
     world.StartingTown = example_town
     return world
 
+
 def listenForWorld():
     global world
     while True:
@@ -35,9 +36,16 @@ def listenForWorld():
         time.sleep(.25)
 
 
+# This is required to get PyQt to print runtime exceptions
+def excepthook(cls, exception, traceback):
+    raise Exception("{}".format(exception))
+
+
 if __name__ == "__main__":
     import discord_interface.player_interface as player_interface
     import discord_interface.basic_bot as gBot
+
+    sys.excepthook = excepthook
 
     app = QApplication(sys.argv)
     threads = {}
