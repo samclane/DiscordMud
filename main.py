@@ -50,7 +50,6 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     threads = {}
-    # initialize the bot
     # W = H = 50
     # world = default_init(W, H)
     dialog = AddWorldDialog()

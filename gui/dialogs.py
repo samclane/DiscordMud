@@ -15,14 +15,16 @@ class AddWorldDialog(QDialog):
         self.nameEdit = QLineEdit()
         nameLabel.setBuddy(self.nameEdit)
 
-        posXLabel = QLabel("&Width")
-        self.posXEdit = QSpinBox()
-        self.posXEdit.setMaximum(100)
-        posXLabel.setBuddy(self.posXEdit)
-        posYLabel = QLabel("&Height")
-        self.posYEdit = QSpinBox()
-        self.posYEdit.setMaximum(100)
-        posYLabel.setBuddy(self.posYEdit)
+        widthLabel = QLabel("&Width")
+        self.widthEdit = QSpinBox()
+        self.widthEdit.setMaximum(100)
+        self.widthEdit.setValue(50)
+        widthLabel.setBuddy(self.widthEdit)
+        heightLabel = QLabel("&Height")
+        self.heightEdit = QSpinBox()
+        self.heightEdit.setMaximum(100)
+        self.heightEdit.setValue(50)
+        heightLabel.setBuddy(self.heightEdit)
 
         okButton = QPushButton("&Ok")
         okButton.setAutoDefault(False)
@@ -39,11 +41,11 @@ class AddWorldDialog(QDialog):
         nameLayout.addWidget(self.nameEdit)
 
         posLayout = QHBoxLayout()
-        posLayout.addWidget(posXLabel)
-        posLayout.addWidget(self.posXEdit)
+        posLayout.addWidget(widthLabel)
+        posLayout.addWidget(self.widthEdit)
         posLayout.addSpacing(1)
-        posLayout.addWidget(posYLabel)
-        posLayout.addWidget(self.posYEdit)
+        posLayout.addWidget(heightLabel)
+        posLayout.addWidget(self.heightEdit)
 
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(nameLayout)
@@ -58,8 +60,8 @@ class AddWorldDialog(QDialog):
 
     def onOk(self, event):
         self.returnData = gamespace.World(self.nameEdit.text(),
-                                          int(self.posXEdit.text()),
-                                          int(self.posYEdit.text()))
+                                          int(self.widthEdit.text()),
+                                          int(self.heightEdit.text()))
         self.accept()
 
 
@@ -95,6 +97,9 @@ class AddTownDialog(QDialog):
             self.posYEdit.setValue(position[1])
 
         self.startingCheck = QCheckBox("Starting town?", self)
+        if parent._world.StartingTown is None:  # Force first town to be starting town
+            self.startingCheck.toggle()
+            self.startingCheck.setEnabled(False)
 
         okButton = QPushButton("&Ok")
         okButton.setAutoDefault(False)
