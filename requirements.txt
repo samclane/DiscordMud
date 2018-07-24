@@ -1,0 +1,3 @@
+discord
+pyqt5
+numpy

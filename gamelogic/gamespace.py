@@ -1,7 +1,6 @@
 import numpy
 
-import events
-
+from gamelogic import events, actors
 
 class Space:
     X = None
@@ -18,7 +17,10 @@ class Space:
         return self.X == other.X and self.Y == other.Y
 
     def __add__(self, other):
-        return Space(self.X + other.X, self.Y + other.Y)
+        if isinstance(other, Space):
+            return Space(self.X + other.X, self.Y + other.Y)
+        else:
+            return Space(self.X + other[0], self.Y + other[1])
 
     def __hash__(self):
         return self.X + 100 * self.Y
@@ -26,7 +28,6 @@ class Space:
 
 class IndustryType(object):
     Name = "Null"
-    pass
 
 
 class MiningIndustry(IndustryType):
@@ -83,7 +84,7 @@ class World:
     Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
     Towns = []
     Wilds = []
-    Users = {}
+    Users = []
     StartingTown: Town = None
 
     def __init__(self, width, height):
@@ -100,3 +101,10 @@ class World:
     def addWilds(self, wilds: Wilds):
         self.Wilds.append(wilds)
         self.Map[wilds.Y][wilds.X] = wilds
+
+    def addActor(self, actor, space=None):
+        if isinstance(actor, actors.PlayerCharacter):
+            actor.Location = self.StartingTown
+            self.Users.append(actor)
+        elif space and (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1):
+            actor.Location = space
