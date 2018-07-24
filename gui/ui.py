@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QImage, QBrush, QColor
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import Town, Wilds
+from gui.dialogs import AddTownDialog
 
 
 def Icon(parent, macro):
@@ -12,8 +13,9 @@ def Icon(parent, macro):
 
 class PointerMode:
     Normal = 0
-    AddTown = 1
-    AddWilds = 2
+    Drag = 1
+    AddTown = 2
+    AddWilds = 3
 
 
 class MainWindow(QMainWindow):
@@ -83,7 +85,7 @@ class WorldFrame(QGraphicsView):
         self.setFrameShape(QFrame.NoFrame)
         self.pointerMode = PointerMode.Normal
         self.setCacheMode(QGraphicsView.CacheBackground)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
+        self.setDragMode(QGraphicsView.NoDrag)
 
     def fitInView(self, scale=True):
         rect = QRectF(self._worldview.boundingRect())
@@ -134,8 +136,24 @@ class WorldFrame(QGraphicsView):
         super().update()
         self._worldview.update()
 
+    def toggleDragMode(self):
+        if self.dragMode() == QGraphicsView.ScrollHandDrag:
+            self.setDragMode(QGraphicsView.NoDrag)
+            self.pointerMode = PointerMode.Normal
+        elif not self._photo.pixmap().isNull():
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
+            self.pointerMode = PointerMode.Drag
+
     def addTownMode(self, event):
         self.pointerMode = PointerMode.AddTown
+
+    def mousePressEvent(self, event):
+        if self.pointerMode == PointerMode.AddTown:
+            dialog = AddTownDialog(self, self.currentGridPoint)
+            if dialog.exec_():
+                self._world.addTown(dialog.returnData)
+            self.pointerMode = PointerMode.Normal
+
 
 class WorldView(QGraphicsObject):
     msg2Statusbar = pyqtSignal(str)
@@ -148,13 +166,9 @@ class WorldView(QGraphicsObject):
         self.townpix = QImage(r"res/sprites/town.png")
         self.wildpix = QImage(r"res/sprites/wild.png")
         self.playerpix = QImage(r"res/sprites/player.png")
-        self.resetViewport()
 
     def boundingRect(self):
         return QRectF(0, 0, 1000, 1000)
-
-    def resetViewport(self):
-        self.update()
 
     def gridToPix(self, x, y):
         rect = self.boundingRect()
