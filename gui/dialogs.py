@@ -2,9 +2,66 @@ import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
-    QVBoxLayout
+    QVBoxLayout, QCheckBox
 
 from gamelogic import gamespace
+
+
+class AddWorldDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        nameLabel = QLabel("World &name:")
+        self.nameEdit = QLineEdit()
+        nameLabel.setBuddy(self.nameEdit)
+
+        posXLabel = QLabel("&Width")
+        self.posXEdit = QSpinBox()
+        self.posXEdit.setMaximum(100)
+        posXLabel.setBuddy(self.posXEdit)
+        posYLabel = QLabel("&Height")
+        self.posYEdit = QSpinBox()
+        self.posYEdit.setMaximum(100)
+        posYLabel.setBuddy(self.posYEdit)
+
+        okButton = QPushButton("&Ok")
+        okButton.setAutoDefault(False)
+
+        cancelButton = QPushButton("&Cancel")
+        cancelButton.setDefault(True)
+
+        buttonBox = QDialogButtonBox(Qt.Horizontal)
+        buttonBox.addButton(okButton, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(cancelButton, QDialogButtonBox.ActionRole)
+
+        nameLayout = QHBoxLayout()
+        nameLayout.addWidget(nameLabel)
+        nameLayout.addWidget(self.nameEdit)
+
+        posLayout = QHBoxLayout()
+        posLayout.addWidget(posXLabel)
+        posLayout.addWidget(self.posXEdit)
+        posLayout.addSpacing(1)
+        posLayout.addWidget(posYLabel)
+        posLayout.addWidget(self.posYEdit)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(nameLayout)
+        mainLayout.addLayout(posLayout)
+        mainLayout.addWidget(buttonBox)
+
+        self.setLayout(mainLayout)
+        self.setWindowTitle("Create World")
+        self.returnData = None
+        okButton.clicked.connect(self.onOk)
+        cancelButton.clicked.connect(self.reject)
+
+    def onOk(self, event):
+        self.returnData = gamespace.World(self.nameEdit.text(),
+                                          int(self.posXEdit.text()),
+                                          int(self.posYEdit.text()))
+        self.accept()
+
 
 class AddTownDialog(QDialog):
     def __init__(self, parent=None, position=None):
@@ -36,6 +93,8 @@ class AddTownDialog(QDialog):
         if position:
             self.posXEdit.setValue(position[0])
             self.posYEdit.setValue(position[1])
+
+        self.startingCheck = QCheckBox("Starting town?", self)
 
         okButton = QPushButton("&Ok")
         okButton.setAutoDefault(False)
@@ -71,11 +130,13 @@ class AddTownDialog(QDialog):
         mainLayout.addLayout(popLayout)
         mainLayout.addLayout(industLayout)
         mainLayout.addLayout(posLayout)
+        mainLayout.addWidget(self.startingCheck)
         mainLayout.addWidget(buttonBox)
 
         self.setLayout(mainLayout)
         self.setWindowTitle("Add Town")
         self.returnData = None
+        self.isStartingTown = False
         okButton.clicked.connect(self.onOk)
         cancelButton.clicked.connect(self.reject)
 
@@ -85,6 +146,7 @@ class AddTownDialog(QDialog):
                                          self.nameEdit.text(),
                                          int(self.popEdit.text()),
                                          self.industList[self.industCombo.currentText()])
+        self.isStartingTown = self.startingCheck.isChecked()
         self.accept()
 
 

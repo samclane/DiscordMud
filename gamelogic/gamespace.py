@@ -2,6 +2,7 @@ import numpy
 
 from gamelogic import events, actors
 
+
 class Space:
     X = None
     Y = None
@@ -79,6 +80,7 @@ class Wilds(Space):
 
 
 class World:
+    Name = None
     Width = 0
     Height = 0
     Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
@@ -87,7 +89,8 @@ class World:
     Users = []
     StartingTown: Town = None
 
-    def __init__(self, width, height):
+    def __init__(self, name, width, height):
+        self.Name = name
         self.Width = width
         self.Height = height
         self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]

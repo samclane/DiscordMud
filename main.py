@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication
 
 from gamelogic import events, gamespace
 from gui import ui
+from gui.dialogs import AddWorldDialog
 
 world = None
 app = None
@@ -15,7 +16,7 @@ game_channel = None  # The public text channel where public events take place
 
 # my test routine to initialize the world. Should be replaced with ui stuff eventually
 def default_init(xWidth, yHeight):
-    world = gamespace.World(xWidth, yHeight)
+    world = gamespace.World("Testworld", xWidth, yHeight)
     example_town = gamespace.Town(5, 3, 'Braxton', 53, gamespace.MiningIndustry)
     world.addTown(example_town, True)
     example_wilds = gamespace.Wilds(5, 2, 'The Ruined Forest')
@@ -50,8 +51,13 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     threads = {}
     # initialize the bot
-    W = H = 50
-    world = default_init(W, H)
+    # W = H = 50
+    # world = default_init(W, H)
+    dialog = AddWorldDialog()
+    if dialog.exec_():
+        world = dialog.returnData
+    else:
+        sys.exit(0)
     pi = player_interface.setup(gBot.bot, world)
     pi.registered.connect(world.addActor)
     tBot = threading.Thread(target=gBot.bot.run, args=(gBot.TOKEN,), daemon=True)

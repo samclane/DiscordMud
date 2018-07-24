@@ -156,7 +156,10 @@ class WorldFrame(QGraphicsView):
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
-                self._world.addTown(dialog.returnData)
+                town = dialog.returnData
+                self._world.addTown(town)
+                if dialog.isStartingTown:
+                    self._world.StartingTown = town
             self.pointerMode = PointerMode.Normal
         if self.pointerMode == PointerMode.AddWilds:
             dialog = AddWildsDialog(self, self.currentGridPoint)

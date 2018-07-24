@@ -30,7 +30,7 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(es.Chest.Name, 'Chain Mail')
 
     def test_world(self):
-        w = World(50, 50)
+        w = World("Testworld", 50, 50)
         t = Town(1, 1, 'Braxton', 50, FarmingIndustry)
         w.addTown(t)
         self.assertIn(t, w.Towns)
@@ -39,7 +39,7 @@ class PlayerTest(unittest.TestCase):
         self.assertIn(i, w.Wilds)
 
     def test_run_event(self):
-        w = World(50, 50)
+        w = World("Testworld", 50, 50)
         i = Wilds(2, 2, 'Hidden Forrest')
         e = EncounterEvent(.5, "You find a penny in the road.",
                            {"Pick it up": "Gain a penny", "Leave it": "Gain nothing"})
