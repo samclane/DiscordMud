@@ -61,27 +61,3 @@ if __name__ == "__main__":
     pi.registered.connect(main_window.update)
     pi.moved.connect(main_window.update)
     sys.exit(app.exec_())
-
-    """
-    # initialize the bot
-    # world = default_init(50, 50)
-    tBot = threading.Thread(target=bot.run, args=(token,))
-    threads['bot'] = tBot
-    tBot.start()
-
-    # initialize the gui
-    root = ui.Tk()
-    root.geometry("500x500")
-    app = ui.Window(root)
-    root.protocol("WM_DELETE_WINDOW", app.on_closing)  # close all threads on exit
-    root.after(app.REFRESH_RATE, app.update)  # set update hook
-
-    # my hacky way of updating the world
-    worldListener = threading.Thread(target=listenForWorld)
-    threads['worldlistener'] = worldListener
-    worldListener.start()
-
-    # start GUI (LEAVE THIS LAST)
-    # apparently can't run tk in a non-main thread
-    root.mainloop()
-    """

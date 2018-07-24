@@ -2,7 +2,7 @@ import unittest
 
 from gamelogic.gamespace import *
 from gamelogic.items import *
-from gamelogic.player import *
+from gamelogic.actors import *
 from gamelogic.events import *
 
 class PlayerTest(unittest.TestCase):

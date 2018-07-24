@@ -28,6 +28,9 @@ class Actor:
             return False
         else:
             self.Location = new_space
+            map_space = self.ParentWorld.Map[self.Location.Y][self.Location.X]
+            if isinstance(map_space, gamespace.Wilds):
+                map_space.runEvent(pc=self)
             return True
 
 
