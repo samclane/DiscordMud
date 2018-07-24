@@ -50,7 +50,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     threads = {}
     # initialize the bot
-    world = default_init(50, 50)
+    W = H = 50
+    world = default_init(W, H)
     pi = player_interface.setup(gBot.bot, world)
     pi.registered.connect(world.addActor)
     tBot = threading.Thread(target=gBot.bot.run, args=(gBot.TOKEN,), daemon=True)

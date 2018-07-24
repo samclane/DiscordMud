@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QImage, QBrush, QColor
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import Town, Wilds
-from gui.dialogs import AddTownDialog
+from gui.dialogs import AddTownDialog, AddWildsDialog
 
 
 def Icon(parent, macro):
@@ -49,10 +49,15 @@ class MainWindow(QMainWindow):
         # Add toolbar
         townAct = QAction(QIcon(r"res/icons/town.png"), 'Add Town', self)
         townAct.setStatusTip("Add a new town to the map.")
-        townAct.triggered.connect(self.worldFrame.addTownMode)
+        townAct.triggered.connect(lambda e: self.worldFrame.changePointerMode(PointerMode.AddTown))
+
+        wildsAct = QAction(QIcon(r"res/icons/wild.png"), 'Add Wilds', self)
+        wildsAct.setStatusTip("Add a new wild square to the map.")
+        wildsAct.triggered.connect(lambda e: self.worldFrame.changePointerMode(PointerMode.AddWilds))
 
         self.toolbar = self.addToolBar('Map')
         self.toolbar.addAction(townAct)
+        self.toolbar.addAction(wildsAct)
 
         # Init window and show
         self.setGeometry(300, 300, 300, 200)
@@ -144,14 +149,19 @@ class WorldFrame(QGraphicsView):
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             self.pointerMode = PointerMode.Drag
 
-    def addTownMode(self, event):
-        self.pointerMode = PointerMode.AddTown
+    def changePointerMode(self, mode):
+        self.pointerMode = mode
 
     def mousePressEvent(self, event):
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
                 self._world.addTown(dialog.returnData)
+            self.pointerMode = PointerMode.Normal
+        if self.pointerMode == PointerMode.AddWilds:
+            dialog = AddWildsDialog(self, self.currentGridPoint)
+            if dialog.exec_():
+                self._world.addWilds(dialog.returnData)
             self.pointerMode = PointerMode.Normal
 
 
@@ -207,7 +217,7 @@ class WorldView(QGraphicsObject):
                 space = self.world.Map[i][j]
                 xcoord, ycoord = self.gridToPix(j, i)
 
-                painter.drawImage(xcoord, ycoord, dirtpix)
+                painter.drawImage(xcoord, ycoord, dirtpix)  # TODO Shouldn't have to redraw background every frame
                 if isinstance(space, Town):
                     painter.drawImage(xcoord, ycoord, townpix)
                 if isinstance(space, Wilds):
@@ -218,9 +228,12 @@ class WorldView(QGraphicsObject):
             xcoord, ycoord = self.gridToPix(player.Location.X, player.Location.Y)
             painter.drawImage(xcoord, ycoord, playerpix)
 
-        # Draw pointer
-        if self.parent.pointerMode == PointerMode.AddTown:
+        # Draw pointers
+        if self.parent.pointerMode != PointerMode.Normal:
             point = self.parent.currentGridPoint
             xcoord, ycoord = self.gridToPix(*point)
             painter.setOpacity(.5)
-            painter.drawImage(xcoord, ycoord, townpix)
+            if self.parent.pointerMode == PointerMode.AddTown:
+                painter.drawImage(xcoord, ycoord, townpix)
+            elif self.parent.pointerMode == PointerMode.AddWilds:
+                painter.drawImage(xcoord, ycoord, wildpix)
