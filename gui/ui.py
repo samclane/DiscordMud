@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         # Init window and show
         self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('DiscordMUD - Backend Manager')
+        self.setWindowIcon(QIcon(r"res/icons/dungeon-gate.png"))
         self.show()
         self.worldFrame.resetViewport()
 

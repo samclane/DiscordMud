@@ -22,7 +22,6 @@ class PlayerInterface(QObject):
         self.moved.connect(lambda *_: print('<Emitted "moved">'))
 
     def addPlayer(self, pid, pc):
-        print('adding player')
         self.players[pid] = pc
         self.registered.emit(pc)
 

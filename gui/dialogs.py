@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
     QVBoxLayout, QCheckBox
 
@@ -57,6 +58,7 @@ class AddWorldDialog(QDialog):
         self.returnData = None
         okButton.clicked.connect(self.onOk)
         cancelButton.clicked.connect(self.reject)
+        self.setWindowIcon(QIcon(r"res/icons/dungeon-gate.png"))
 
     def onOk(self, event):
         self.returnData = gamespace.World(self.nameEdit.text(),
