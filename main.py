@@ -1,6 +1,7 @@
+import os
+import pickle
 import sys
 import threading
-import time
 
 from PyQt5.QtWidgets import QApplication
 
@@ -30,13 +31,6 @@ def default_init(xWidth, yHeight):
     return world
 
 
-def listenForWorld():
-    global world
-    while True:
-        world = app.gameWorld
-        time.sleep(.25)
-
-
 # This is required to get PyQt to print runtime exceptions
 def excepthook(cls, exception, traceback):
     raise Exception("{}".format(exception))
@@ -50,19 +44,28 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     threads = {}
-    # W = H = 50
-    # world = default_init(W, H)
-    dialog = AddWorldDialog()
-    if dialog.exec_():
-        world = dialog.returnData
+
+    # Have world be built by user.
+    if os.path.isfile(r'./world.p'):
+        world = pickle.load(open(r"./world.p", "rb"))
     else:
-        sys.exit(0)
+        dialog = AddWorldDialog()
+        if dialog.exec_():
+            world = dialog.returnData
+        else:
+            sys.exit(-1)
+
+    # Start player interface bot in separate thread
     pi = player_interface.setup(gBot.bot, world)
     pi.registered.connect(world.addActor)
     tBot = threading.Thread(target=gBot.bot.run, args=(gBot.TOKEN,), daemon=True)
     threads['bot'] = tBot
     tBot.start()
+
+    # Start main Qt window
     main_window = ui.MainWindow(app, world)
     pi.registered.connect(main_window.update)
     pi.moved.connect(main_window.update)
+
+    # Begin application, and exit when it returns
     sys.exit(app.exec_())

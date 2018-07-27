@@ -1,5 +1,6 @@
-""" Future home of the PyQt5 GUI """
-from PyQt5.QtCore import pyqtSignal, Qt, QRectF
+import pickle
+
+from PyQt5.QtCore import pyqtSignal, QRectF
 from PyQt5.QtGui import QIcon, QImage, QBrush, QColor
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
@@ -33,16 +34,21 @@ class MainWindow(QMainWindow):
         self.worldFrame.msg2Statusbar[str].connect(self.statusbar.showMessage)
 
         # Init menubar
-        exitAct = QAction(Icon(self, 'SP_MessageBoxCritical'), '&Exit', self)
-        exitAct.setStatusTip('Exit application')
-        exitAct.triggered.connect(app.quit)
-
         resetAct = QAction(Icon(self, 'SP_BrowserReload'), '&Reset Viewport', self)
         resetAct.setStatusTip('Reset the viewport to default view')
         resetAct.triggered.connect(self.worldFrame.resetViewport)
 
+        saveAct = QAction(Icon(self, 'SP_DialogSaveButton'), '&Save World', self)
+        saveAct.setStatusTip('Save the world object to a file')
+        saveAct.triggered.connect(lambda e: pickle.dump(self.world, open("world.p", "wb")))
+
+        exitAct = QAction(Icon(self, 'SP_MessageBoxCritical'), '&Exit', self)
+        exitAct.setStatusTip('Exit application')
+        exitAct.triggered.connect(app.quit)
+
         self.menubar = self.menuBar()
         fileMenu = self.menubar.addMenu('&File')
+        fileMenu.addAction(saveAct)
         fileMenu.addAction(resetAct)
         fileMenu.addAction(exitAct)
 

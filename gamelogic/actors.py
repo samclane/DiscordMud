@@ -10,17 +10,13 @@ class BodyType:
 
 
 class Actor:
-    HitPoints: int = 0
-    Name: str = ""
-    BodyType: int = None
-    Location = None
-    ParentWorld = None
 
     def __init__(self, parentworld, hp: int = 0, name: str = "", body_type: int = 1):
         self.ParentWorld = parentworld
         self.HitPoints = hp
         self.Name = name
         self.BodyType = body_type
+        self.Location = None
 
     def attemptMove(self, shift: (int, int)):
         new_space = self.Location + shift
@@ -35,18 +31,23 @@ class Actor:
 
 
 class NPC(Actor):
-    Inventory: [] = []
-    FlavorText = ""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Inventory: [] = []
+        self.FlavorText = ""
 
 
 class Enemy(NPC):
-    BaseAttack: int = 0
-    Abilities: {} = {}
-    Loot: [] = []
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.BaseAttack: int = 0
+        self.Abilities: {} = {}
+        self.Loot: [] = []
 
 
 class PlayerClass:
-    Name: str = None
+    def __init__(self, name=None):
+        self.Name: str = name
 
     def __str__(self):
         return self.Name
@@ -54,18 +55,20 @@ class PlayerClass:
 
 class WandererClass(PlayerClass):
     """ Default player class with nothing special. """
-    Name = "Wanderer"
-    HitPointsMaxBase = 50
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Name = "Wanderer"
+        self.HitPointsMaxBase = 50
 
 
 class PlayerCharacter(Actor):
-    UserId: str = None
-    Name: str = None
-    Class: PlayerClass = WandererClass()
-    HitPoints: int = WandererClass.HitPointsMaxBase
-    HitPointsMax: int = WandererClass.HitPointsMaxBase
-    EquipmentSet: items.EquipmentSet = items.EquipmentSet()
 
     def __init__(self, user_id, *args, **kwargs):
-        self.UserId = user_id
         super().__init__(*args, **kwargs)
+
+        self.UserId: str = user_id
+        self.Name: str = "Unnamed"
+        self.Class: PlayerClass = WandererClass()
+        self.HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
+        self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()

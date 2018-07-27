@@ -4,8 +4,6 @@ from gamelogic import events, actors
 
 
 class Space:
-    X = None
-    Y = None
 
     def __init__(self, x, y):
         self.X = x
@@ -48,9 +46,6 @@ class WoodworkingInudstry(IndustryType):
 
 
 class Town(Space):
-    Name: str = None
-    Population: int = 0
-    Industry: IndustryType = None
 
     def __init__(self, x, y, name, population, industry=None):
         super(Town, self).__init__(x, y)
@@ -60,13 +55,12 @@ class Town(Space):
 
 
 class Wilds(Space):
-    Name: str = None
-    Events: [] = []
 
     def __init__(self, x, y, name):
         super(Wilds, self).__init__(x, y)
         self.Name = name
         self.null_event = events.Event(1.0, "Null Event")
+        self.Events = []
         self.Events.append(self.null_event)
 
     def addEvent(self, event: events.Event):
@@ -80,20 +74,16 @@ class Wilds(Space):
 
 
 class World:
-    Name = None
-    Width = 0
-    Height = 0
-    Map = [[Space(x, y) for x in range(Width)] for y in range(Height)]
-    Towns = []
-    Wilds = []
-    Users = []
-    StartingTown: Town = None
 
-    def __init__(self, name, width, height):
+    def __init__(self, name: str, width: int, height: int):
         self.Name = name
         self.Width = width
         self.Height = height
         self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]
+        self.Towns = []
+        self.Wilds = []
+        self.Users = []
+        self.StartingTown: Town = None
 
     def addTown(self, town: Town, isStartingTown=False):
         self.Towns.append(town)
