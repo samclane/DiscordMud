@@ -14,7 +14,7 @@ class PlayerInterface(QObject):
     moved = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
 
     def __init__(self, bot, world, *args, **kwargs):
-        self.players = {pc.UserId: pc for pc in world.Users}  # Maps DiscordId -> PlayerCharacter
+        self.players = {pc.UserId: pc for pc in world.Players}  # Maps DiscordId -> PlayerCharacter
         self.bot = bot
         self.world = world
         super().__init__(*args, **kwargs)

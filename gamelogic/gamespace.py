@@ -90,7 +90,7 @@ class World:
         self.Map = [[Space(x, y, Terrain.Sand) for x in range(width)] for y in range(height)]
         self.Towns = []
         self.Wilds = []
-        self.Users = []
+        self.Players = []
         self.StartingTown: Town = None
 
     def isSpaceValid(self, space: (int, int)):
@@ -111,6 +111,6 @@ class World:
     def addActor(self, actor, space=None):
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
-            self.Users.append(actor)
+            self.Players.append(actor)
         elif space and self.isSpaceValid(space):
             actor.Location = space

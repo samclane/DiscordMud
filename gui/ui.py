@@ -234,7 +234,7 @@ class WorldView(QGraphicsObject):
                     painter.drawImage(xcoord, ycoord, wildpix)
 
         # Draw PCs
-        for player in self.world.Users:
+        for player in self.world.Players:
             xcoord, ycoord = self.gridToPix(player.Location.X, player.Location.Y)
             painter.drawImage(xcoord, ycoord, playerpix)
 
