@@ -3,11 +3,19 @@ import numpy
 from gamelogic import events, actors
 
 
+class Terrain:
+    Null = 0
+    Sand = 1
+    Grass = 2
+    Water = 3
+
+
 class Space:
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int, terrain: int = Terrain.Null):
         self.X = x
         self.Y = y
+        self.Terrain = terrain
 
     def __str__(self):
         return "({}, {})".format(self.X, self.Y)
@@ -17,9 +25,9 @@ class Space:
 
     def __add__(self, other):
         if isinstance(other, Space):
-            return Space(self.X + other.X, self.Y + other.Y)
+            return Space(self.X + other.X, self.Y + other.Y, self.Terrain)
         else:
-            return Space(self.X + other[0], self.Y + other[1])
+            return Space(self.X + other[0], self.Y + other[1], self.Terrain)
 
     def __hash__(self):
         return self.X + 100 * self.Y
@@ -79,25 +87,30 @@ class World:
         self.Name = name
         self.Width = width
         self.Height = height
-        self.Map = [[Space(x, y) for x in range(width)] for y in range(height)]
+        self.Map = [[Space(x, y, Terrain.Sand) for x in range(width)] for y in range(height)]
         self.Towns = []
         self.Wilds = []
         self.Users = []
         self.StartingTown: Town = None
 
+    def isSpaceValid(self, space: (int, int)):
+        return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and (space.Terrain != Terrain.Null)
+
     def addTown(self, town: Town, isStartingTown=False):
         self.Towns.append(town)
+        town.Terrain = self.Map[town.Y][town.X].Terrain
         self.Map[town.Y][town.X] = town
         if isStartingTown:
             self.StartingTown = town
 
     def addWilds(self, wilds: Wilds):
         self.Wilds.append(wilds)
+        wilds.Terrain = self.Map[wilds.Y][wilds.X].Terrain
         self.Map[wilds.Y][wilds.X] = wilds
 
     def addActor(self, actor, space=None):
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
             self.Users.append(actor)
-        elif space and (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1):
+        elif space and self.isSpaceValid(space):
             actor.Location = space

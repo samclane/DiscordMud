@@ -28,10 +28,10 @@ class AddWorldDialog(QDialog):
         heightLabel.setBuddy(self.heightEdit)
 
         okButton = QPushButton("&Ok")
-        okButton.setAutoDefault(False)
+        okButton.setAutoDefault(True)
 
         cancelButton = QPushButton("&Cancel")
-        cancelButton.setDefault(True)
+        cancelButton.setDefault(False)
 
         buttonBox = QDialogButtonBox(Qt.Horizontal)
         buttonBox.addButton(okButton, QDialogButtonBox.ActionRole)
@@ -104,10 +104,10 @@ class AddTownDialog(QDialog):
             self.startingCheck.setEnabled(False)
 
         okButton = QPushButton("&Ok")
-        okButton.setAutoDefault(False)
+        okButton.setAutoDefault(True)
 
         cancelButton = QPushButton("&Cancel")
-        cancelButton.setDefault(True)
+        cancelButton.setDefault(False)
 
         buttonBox = QDialogButtonBox(Qt.Horizontal)
         buttonBox.addButton(okButton, QDialogButtonBox.ActionRole)
@@ -178,10 +178,10 @@ class AddWildsDialog(QDialog):
             self.posYEdit.setValue(position[1])
 
         okButton = QPushButton("&Ok")
-        okButton.setAutoDefault(False)
+        okButton.setAutoDefault(True)
 
         cancelButton = QPushButton("&Cancel")
-        cancelButton.setDefault(True)
+        cancelButton.setDefault(False)
 
         buttonBox = QDialogButtonBox(Qt.Horizontal)
         buttonBox.addButton(okButton, QDialogButtonBox.ActionRole)

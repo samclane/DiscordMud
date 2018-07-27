@@ -26,14 +26,12 @@ class PlayerInterface(QObject):
         self.registered.emit(pc)
 
     def check_member(self, member):
-        if member.id not in self.players.keys():
-            return False
-        return True
+        return member.id in self.players.keys()
 
     @commands.command(pass_context=True)
     async def register(self, ctx: discord.ext.commands.context.Context):
         member = ctx.message.author
-        if member.id in self.players.keys():
+        if self.check_member(member):
             await self.bot.say("You've already registered, dummy!")
             return
         await self.bot.say("Do you want to join the MUD? (say 'yes' to continue)")

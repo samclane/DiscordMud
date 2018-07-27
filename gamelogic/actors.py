@@ -17,10 +17,11 @@ class Actor:
         self.Name = name
         self.BodyType = body_type
         self.Location = None
+        self.FOV_Default = 1
 
-    def attemptMove(self, shift: (int, int)):
+    def attemptMove(self, shift: (int, int)) -> bool:
         new_space = self.Location + shift
-        if new_space.X < 0 or new_space.Y < 0 or new_space.X > self.ParentWorld.Width - 1 or new_space.Y > self.ParentWorld.Height - 1:
+        if not self.ParentWorld.isSpaceValid(new_space):
             return False
         else:
             self.Location = new_space
@@ -48,6 +49,7 @@ class Enemy(NPC):
 class PlayerClass:
     def __init__(self, name=None):
         self.Name: str = name
+        self.HitPointsMaxBase = 1
 
     def __str__(self):
         return self.Name
@@ -72,3 +74,4 @@ class PlayerCharacter(Actor):
         self.Class: PlayerClass = WandererClass()
         self.HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
         self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()
+        self.FOV: int = self.FOV_Default
