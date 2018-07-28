@@ -1,10 +1,10 @@
 import pickle
 
-from PyQt5.QtCore import pyqtSignal, QRectF, Qt
-from PyQt5.QtGui import QIcon, QImage, QBrush, QColor
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPointF
+from PyQt5.QtGui import QIcon, QImage, QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
-from gamelogic.gamespace import Town, Wilds
+from gamelogic.gamespace import Town, Wilds, Terrain
 from gui.dialogs import AddTownDialog, AddWildsDialog
 
 
@@ -169,19 +169,20 @@ class WorldFrame(QGraphicsView):
     def mousePressEvent(self, event):
         if event.buttons() & Qt.MiddleButton:
             self.toggleDragMode()
-        if self.pointerMode == PointerMode.AddTown:
-            dialog = AddTownDialog(self, self.currentGridPoint)
-            if dialog.exec_():
-                town = dialog.returnData
-                self._world.addTown(town)
-                if dialog.isStartingTown:
-                    self._world.StartingTown = town
-            self.pointerMode = PointerMode.Normal
-        if self.pointerMode == PointerMode.AddWilds:
-            dialog = AddWildsDialog(self, self.currentGridPoint)
-            if dialog.exec_():
-                self._world.addWilds(dialog.returnData)
-            self.pointerMode = PointerMode.Normal
+        elif event.buttons() & Qt.LeftButton:
+            if self.pointerMode == PointerMode.AddTown:
+                dialog = AddTownDialog(self, self.currentGridPoint)
+                if dialog.exec_():
+                    town = dialog.returnData
+                    self._world.addTown(town)
+                    if dialog.isStartingTown:
+                        self._world.StartingTown = town
+                self.pointerMode = PointerMode.Normal
+            if self.pointerMode == PointerMode.AddWilds:
+                dialog = AddWildsDialog(self, self.currentGridPoint)
+                if dialog.exec_():
+                    self._world.addWilds(dialog.returnData)
+                self.pointerMode = PointerMode.Normal
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -190,6 +191,7 @@ class WorldFrame(QGraphicsView):
             self.pointerMode = PointerMode.Normal
         super().mouseReleaseEvent(event)
 
+
 class WorldView(QGraphicsObject):
     msg2Statusbar = pyqtSignal(str)
 
@@ -197,10 +199,11 @@ class WorldView(QGraphicsObject):
         super().__init__()
         self.parent = parent
         self.world = world
-        self.dirtpix = QImage(r"res/sprites/grass.png")
-        self.townpix = QImage(r"res/sprites/town.png")
-        self.wildpix = QImage(r"res/sprites/wild.png")
-        self.playerpix = QImage(r"res/sprites/player.png")
+        self.spritemap = {}
+        self.spritemap['dirt'] = QPixmap(r"res/sprites/dirt.png")
+        self.spritemap['town'] = QPixmap(r"res/sprites/town.png")
+        self.spritemap['wild'] = QPixmap(r"res/sprites/wild.png")
+        self.spritemap['player'] = QPixmap(r"res/sprites/player.png")
 
     def boundingRect(self):
         return QRectF(0, 0, 1000, 1000)
@@ -230,28 +233,31 @@ class WorldView(QGraphicsObject):
         return int((self.boundingRect().height() / self.world.Height))
 
     def paint(self, painter, option, widget):
-        dirtpix = self.dirtpix.scaledToWidth(self.squareWidth()).scaledToHeight(self.squareHeight())
-        townpix = self.townpix.scaledToWidth(self.squareWidth()).scaledToHeight(self.squareHeight())
-        wildpix = self.wildpix.scaledToWidth(self.squareWidth()).scaledToHeight(self.squareHeight())
-        playerpix = self.playerpix.scaledToWidth(self.squareWidth()).scaledToHeight(
-            self.squareHeight())
+        spritemap = {}
+        for key, value in self.spritemap.items():
+            spritemap[key] = value.scaledToWidth(self.squareWidth()).scaledToHeight(self.squareHeight())
 
+        # painter.drawTiledPixmap(self.boundingRect(), dirtpix, QPointF(0, 0)) # faster but less precise
         # Draw terrain
         for i in range(self.world.Height):
             for j in range(self.world.Width):
                 space = self.world.Map[i][j]
                 xcoord, ycoord = self.gridToPix(j, i)
 
-                painter.drawImage(xcoord, ycoord, dirtpix)  # TODO Shouldn't have to redraw background every frame
+                if space.Terrain == Terrain.Sand:
+                    painter.drawPixmap(xcoord, ycoord,
+                                       spritemap["dirt"])  # TODO Shouldn't have to redraw background every frame
                 if isinstance(space, Town):
-                    painter.drawImage(xcoord, ycoord, townpix)
+                    painter.drawPixmap(xcoord, ycoord, spritemap["town"])
+                    if self.world.StartingTown == space:
+                        painter.drawRect(xcoord, ycoord, self.squareWidth(), self.squareHeight())
                 if isinstance(space, Wilds):
-                    painter.drawImage(xcoord, ycoord, wildpix)
+                    painter.drawPixmap(xcoord, ycoord, spritemap["wild"])
 
         # Draw PCs
         for player in self.world.Players:
             xcoord, ycoord = self.gridToPix(player.Location.X, player.Location.Y)
-            painter.drawImage(xcoord, ycoord, playerpix)
+            painter.drawPixmap(xcoord, ycoord, spritemap["player"])
 
         # Draw pointers
         if self.parent.pointerMode != PointerMode.Normal:
@@ -259,6 +265,6 @@ class WorldView(QGraphicsObject):
             xcoord, ycoord = self.gridToPix(*point)
             painter.setOpacity(.5)
             if self.parent.pointerMode == PointerMode.AddTown:
-                painter.drawImage(xcoord, ycoord, townpix)
+                painter.drawPixmap(xcoord, ycoord, spritemap["town"])
             elif self.parent.pointerMode == PointerMode.AddWilds:
-                painter.drawImage(xcoord, ycoord, wildpix)
+                painter.drawPixmap(xcoord, ycoord, spritemap["wild"])

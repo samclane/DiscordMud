@@ -33,7 +33,7 @@ class Space:
         return self.X + 100 * self.Y
 
 
-class IndustryType(object):
+class IndustryType:
     Name = "Null"
 
 
@@ -49,7 +49,7 @@ class SmithingIndustry(IndustryType):
     Name = "Smithing"
 
 
-class WoodworkingInudstry(IndustryType):
+class WoodworkingIndustry(IndustryType):
     Name = "Woodworking"
 
 
@@ -87,7 +87,8 @@ class World:
         self.Name = name
         self.Width = width
         self.Height = height
-        self.Map = [[Space(x, y, Terrain.Sand) for x in range(width)] for y in range(height)]
+        self.Map = [[Space(x, y, Terrain.Sand) for x in range(width)] for y in
+                    range(height)]  # Will eventually place Terrain.Null, and generate a map proceduraly
         self.Towns = []
         self.Wilds = []
         self.Players = []
