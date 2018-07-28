@@ -125,11 +125,15 @@ class WorldFrame(QGraphicsView):
         gridx, gridy = self._worldview.pixToGrid(ex, ey)
         self.currentGridPoint = (gridx, gridy)
         landmark = " "
+        players = " "
         if 0 < gridx < self._world.Width and 0 < gridy < self._world.Height:
             space = self._world.Map[gridy][gridx]
             if space in self._world.Towns or space in self._world.Wilds:
                 landmark += space.Name
-        self.msg2Statusbar.emit("({}, {}) {}".format(int(gridx), int(gridy), landmark))
+            for p in self._world.Players:
+                if p.Location == space:
+                    players += p.Name + " "
+        self.msg2Statusbar.emit("({}, {}) {} [{}]".format(int(gridx), int(gridy), landmark, players))
         self.update()
         super().mouseMoveEvent(event)
 
