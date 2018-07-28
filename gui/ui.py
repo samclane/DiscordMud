@@ -1,6 +1,6 @@
 import pickle
 
-from PyQt5.QtCore import pyqtSignal, QRectF
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt
 from PyQt5.QtGui import QIcon, QImage, QBrush, QColor
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
@@ -9,6 +9,7 @@ from gui.dialogs import AddTownDialog, AddWildsDialog
 
 
 def Icon(parent, macro):
+    """ Convenience method to easily access default Qt Icons """
     return parent.style().standardIcon(getattr(QStyle, macro))
 
 
@@ -98,6 +99,8 @@ class WorldFrame(QGraphicsView):
         self.pointerMode = PointerMode.Normal
         self.setCacheMode(QGraphicsView.CacheBackground)
         self.setDragMode(QGraphicsView.NoDrag)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def fitInView(self, scale=True):
         rect = QRectF(self._worldview.boundingRect())
@@ -152,7 +155,7 @@ class WorldFrame(QGraphicsView):
         if self.dragMode() == QGraphicsView.ScrollHandDrag:
             self.setDragMode(QGraphicsView.NoDrag)
             self.pointerMode = PointerMode.Normal
-        elif not self._photo.pixmap().isNull():
+        else:
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             self.pointerMode = PointerMode.Drag
 
@@ -160,6 +163,8 @@ class WorldFrame(QGraphicsView):
         self.pointerMode = mode
 
     def mousePressEvent(self, event):
+        if event.buttons() & Qt.MiddleButton:
+            self.toggleDragMode()
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
@@ -173,7 +178,13 @@ class WorldFrame(QGraphicsView):
             if dialog.exec_():
                 self._world.addWilds(dialog.returnData)
             self.pointerMode = PointerMode.Normal
+        super().mousePressEvent(event)
 
+    def mouseReleaseEvent(self, event):
+        if self.dragMode() == QGraphicsView.ScrollHandDrag:
+            self.setDragMode(QGraphicsView.NoDrag)
+            self.pointerMode = PointerMode.Normal
+        super().mouseReleaseEvent(event)
 
 class WorldView(QGraphicsObject):
     msg2Statusbar = pyqtSignal(str)
