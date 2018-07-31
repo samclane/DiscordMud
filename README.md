@@ -15,7 +15,7 @@ for a world name and grid size.
 ![world creation window](./screenshots/1.png)
 
 # Getting started
-When you are done, some terrain should appear. 
+When you are done, some randomly generated terrain should appear. 
 
 <img src="./screenshots/2.png" alt="grass window" width="50%" height="50%"/>
 
