@@ -122,29 +122,29 @@ class PlayerInterface(QObject):
     async def _town(self, ctx):
         """ Menu to perform town interactions. """
         # Make checks to ensure user is in a town
-        member = ctx.message.author
-        if not self.check_member(member):
-            await self.bot.say("Please register first")
-            return
-        pc = self.players[member.id]
-        if pc.Location in self.world.Towns:
-            await self.bot.say("Debug: You're in a town!")
-        else:
-            await self.bot.say("Debug: You're NOT in a town!")
         if ctx.invoked_subcommand is None:
-            pass
+            member = ctx.message.author
+            if not self.check_member(member):
+                await self.bot.say("Please register first")
+                return
+            pc = self.players[member.id]
+            for town in self.world.Towns:
+                if pc.Location == town:
+                    await self.bot.say("Debug: You're in {}!".format(town.Name))
+                    return
+            else:
+                await self.bot.say("Debug: You're NOT in a town!")
 
     @_town.command(pass_context=True)
     async def inn(self, ctx):
         """ Rest to restore hitpoints. """
         member = ctx.message.author
         pc = self.players[member.id]
-        locat = pc.Location
-
-        town = self.world.Map[locat.Y][locat.X]  # will eventually use to add inn-specific effects
+        loc = pc.Location
+        town = self.world.Map[loc.Y][loc.X]
         if pc.Location in self.world.Towns:
             # Restore players' hitpoints
-            pc.HitPoints = pc.HitPointsMax
+            town.innEvent(pc)
             await self.bot.say("HP Restored!")
         else:
             await self.bot.say("You're not in a Town, much less an Inn!")

@@ -7,8 +7,8 @@ from gamelogic import events, actors
 
 
 class Terrain:
-    id = 0
-    isWalkable = False
+    id: int = 0
+    isWalkable: bool = False
 
 
 class SandTerrain(Terrain):
@@ -53,7 +53,7 @@ class Space:
 
 
 class IndustryType:
-    Name = "Null"
+    Name: str = "Null"
 
 
 class MiningIndustry(IndustryType):
@@ -82,6 +82,9 @@ class Town(Space):
         self.Name = name
         self.Population = population
         self.Industry = industry
+
+    def innEvent(self, pc: actors.PlayerCharacter):
+        pc.HitPoints = pc.HitPointsMax
 
 
 class Wilds(Space):

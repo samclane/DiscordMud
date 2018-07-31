@@ -1,7 +1,7 @@
 import pickle
 
-from PyQt5.QtCore import pyqtSignal, QRectF, Qt
-from PyQt5.QtGui import QIcon, QBrush, QColor, QPixmap
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPointF
+from PyQt5.QtGui import QIcon, QImage, QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import *
@@ -207,7 +207,9 @@ class WorldView(QGraphicsObject):
         self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
 
     def boundingRect(self):
-        return QRectF(0, 0, 1000, 1000)
+        width = self.squareWidth() * self.world.Width
+        height = self.squareHeight() * self.world.Height
+        return QRectF(0, 0, width, height)
 
     def gridToPix(self, x, y):
         rect = self.boundingRect()
@@ -226,18 +228,16 @@ class WorldView(QGraphicsObject):
     def squareWidth(self):
         '''returns the width of one square'''
 
-        return int((self.boundingRect().width() / self.world.Width))
+        # return int((self.boundingRect().width() / self.world.Width))
+        return self.spritemap['dirt'].width()
 
     def squareHeight(self):
         '''returns the height of one square'''
 
-        return int((self.boundingRect().height() / self.world.Height))
+        # return int((self.boundingRect().height() / self.world.Height))
+        return self.spritemap['dirt'].height()
 
     def paint(self, painter, option, widget):
-        spritemap = {}
-        for key, value in self.spritemap.items():
-            spritemap[key] = value.scaled(self.squareWidth(), self.squareHeight(), Qt.KeepAspectRatio)
-
         # painter.drawTiledPixmap(self.boundingRect(), dirtpix, QPointF(0, 0)) # faster but less precise
         # Draw terrain
         for i in range(self.world.Height):
@@ -247,21 +247,21 @@ class WorldView(QGraphicsObject):
 
                 if isinstance(space.Terrain, SandTerrain):
                     painter.drawPixmap(xcoord, ycoord,
-                                       spritemap["dirt"])  # TODO Shouldn't have to redraw background every frame
+                                       self.spritemap["dirt"])  # TODO Shouldn't have to redraw background every frame
                 if isinstance(space.Terrain, WaterTerrain):
                     painter.drawPixmap(xcoord, ycoord,
-                                       spritemap["water"])
+                                       self.spritemap["water"])
                 if isinstance(space, Town):
-                    painter.drawPixmap(xcoord, ycoord, spritemap["town"])
+                    painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
                     if self.world.StartingTown == space:
                         painter.drawRect(xcoord, ycoord, self.squareWidth(), self.squareHeight())
                 if isinstance(space, Wilds):
-                    painter.drawPixmap(xcoord, ycoord, spritemap["wild"])
+                    painter.drawPixmap(xcoord, ycoord, self.spritemap["wild"])
 
         # Draw PCs
         for player in self.world.Players:
             xcoord, ycoord = self.gridToPix(player.Location.X, player.Location.Y)
-            painter.drawPixmap(xcoord, ycoord, spritemap["player"])
+            painter.drawPixmap(xcoord, ycoord, self.spritemap["player"])
 
         # Draw pointers
         if self.parent.pointerMode != PointerMode.Normal:
@@ -269,6 +269,6 @@ class WorldView(QGraphicsObject):
             xcoord, ycoord = self.gridToPix(*point)
             painter.setOpacity(.5)
             if self.parent.pointerMode == PointerMode.AddTown:
-                painter.drawPixmap(xcoord, ycoord, spritemap["town"])
+                painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
             elif self.parent.pointerMode == PointerMode.AddWilds:
-                painter.drawPixmap(xcoord, ycoord, spritemap["wild"])
+                painter.drawPixmap(xcoord, ycoord, self.spritemap["wild"])

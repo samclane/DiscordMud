@@ -1,3 +1,4 @@
+noise
 discord
 pyqt5
 numpy
