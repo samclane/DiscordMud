@@ -2,11 +2,15 @@
 PlayerInterface is mainly concerned with getting info to-and-from Discord. This info should be relayed to the rest of
 the application via Qt Signals
 """
+import time
+
 import discord
 from PyQt5.QtCore import pyqtSignal, QObject
 from discord.ext import commands
 
 from gamelogic import actors
+
+MOVEMENT_WAIT_TIME = 10  # seconds
 
 
 class PlayerInterface(QObject):
@@ -86,17 +90,20 @@ class PlayerInterface(QObject):
 
         # Ensure the direction given is valid
         pc = self.players[member.id]
+        if time.time() - pc.TimeLastMoved < MOVEMENT_WAIT_TIME:
+            await self.bot.say("Please wait before making another move.")
+            return
         directions = ['n', 's', 'e', 'w']
         if direction not in directions:
             await self.bot.say("Debug: Invalid direction given.")
             return
-
         # Generate new location based on previous, and check if out-of-bounds
         dir_index = directions.index(direction)
         direction_vectors = [(0, -1), (0, 1), (1, 0), (-1, 0)]
         if pc.attemptMove(direction_vectors[dir_index]):
             await self.bot.say("Your new location is {}".format(str(pc.Location)))
             self.moved.emit(pc)
+            pc.TimeLastMoved = time.time()
         else:
             await self.bot.say("Move would put you outside the map!")
 

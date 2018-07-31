@@ -18,6 +18,7 @@ class Actor:
         self.BodyType = body_type
         self.Location = None
         self.FOV_Default = 1
+        self.TimeLastMoved = 0
 
     def attemptMove(self, shift: (int, int)) -> bool:
         new_space = self.Location + shift

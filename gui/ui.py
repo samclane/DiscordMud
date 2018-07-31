@@ -235,7 +235,7 @@ class WorldView(QGraphicsObject):
     def paint(self, painter, option, widget):
         spritemap = {}
         for key, value in self.spritemap.items():
-            spritemap[key] = value.scaledToWidth(self.squareWidth()).scaledToHeight(self.squareHeight())
+            spritemap[key] = value.scaled(self.squareWidth(), self.squareHeight(), Qt.KeepAspectRatio)
 
         # painter.drawTiledPixmap(self.boundingRect(), dirtpix, QPointF(0, 0)) # faster but less precise
         # Draw terrain
