@@ -1,10 +1,10 @@
 import pickle
 
-from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPointF
-from PyQt5.QtGui import QIcon, QImage, QBrush, QColor, QPixmap
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt
+from PyQt5.QtGui import QIcon, QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
-from gamelogic.gamespace import Town, Wilds, Terrain
+from gamelogic.gamespace import *
 from gui.dialogs import AddTownDialog, AddWildsDialog
 
 
@@ -204,6 +204,7 @@ class WorldView(QGraphicsObject):
         self.spritemap['town'] = QPixmap(r"res/sprites/town.png")
         self.spritemap['wild'] = QPixmap(r"res/sprites/wild.png")
         self.spritemap['player'] = QPixmap(r"res/sprites/player.png")
+        self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
 
     def boundingRect(self):
         return QRectF(0, 0, 1000, 1000)
@@ -244,9 +245,12 @@ class WorldView(QGraphicsObject):
                 space = self.world.Map[i][j]
                 xcoord, ycoord = self.gridToPix(j, i)
 
-                if space.Terrain == Terrain.Sand:
+                if isinstance(space.Terrain, SandTerrain):
                     painter.drawPixmap(xcoord, ycoord,
                                        spritemap["dirt"])  # TODO Shouldn't have to redraw background every frame
+                if isinstance(space.Terrain, WaterTerrain):
+                    painter.drawPixmap(xcoord, ycoord,
+                                       spritemap["water"])
                 if isinstance(space, Town):
                     painter.drawPixmap(xcoord, ycoord, spritemap["town"])
                     if self.world.StartingTown == space:

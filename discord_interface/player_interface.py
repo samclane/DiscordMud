@@ -10,7 +10,7 @@ from discord.ext import commands
 
 from gamelogic import actors
 
-MOVEMENT_WAIT_TIME = 10  # seconds
+MOVEMENT_WAIT_TIME = .01  # seconds
 
 
 class PlayerInterface(QObject):
