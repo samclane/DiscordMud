@@ -51,6 +51,17 @@ class Space:
     def __hash__(self):
         return self.X + 100 * self.Y
 
+    def __iter__(self):
+        yield self.X
+        yield self.Y
+
+    def __getitem__(self, item):
+        if item == 0:
+            return self.X
+        if item == 1:
+            return self.Y
+        raise ValueError("Item should be either 0 or 1")
+
 
 class IndustryType:
     Name: str = "Null"
@@ -77,11 +88,13 @@ class Town(Space):
     Population: int
     Industry: IndustryType
 
-    def __init__(self, x, y, name, population, industry=None):
+    def __init__(self, x, y, name, population, industry=None, terrain=None):
         super(Town, self).__init__(x, y)
         self.Name = name
         self.Population = population
         self.Industry = industry
+        self.Terrain = terrain
+        self.Underwater = isinstance(self.Terrain, WaterTerrain)
 
     def innEvent(self, pc: actors.PlayerCharacter):
         pc.HitPoints = pc.HitPointsMax

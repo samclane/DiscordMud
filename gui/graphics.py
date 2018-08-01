@@ -58,8 +58,11 @@ class WorldFrame(QGraphicsView):
     def mouseMoveEvent(self, event):
         point = self.mapToScene(event.x(), event.y())
         ex, ey = point.x(), point.y()
-        gridx, gridy = self._worldview.pixToGrid(ex, ey)
-        self.currentGridPoint = (gridx, gridy)
+        try:
+            self.currentGridPoint = self._worldview.pixToGrid(ex, ey)
+        except IndexError:
+            self.currentGridPoint = Space(0, 0, Terrain())
+        gridx, gridy = self.currentGridPoint
         landmark = " "
         players = " "
         if 0 < gridx < self._world.Width and 0 < gridy < self._world.Height:
@@ -135,38 +138,38 @@ class WorldView(QGraphicsObject):
         super().__init__()
         self.parent = parent
         self.world = world
-        self.spritemap = {}
+        self.spritemap = dict()
         self.spritemap['dirt'] = QPixmap(r"res/sprites/dirt.png")
         self.spritemap['town'] = QPixmap(r"res/sprites/town.png")
         self.spritemap['wild'] = QPixmap(r"res/sprites/wild.png")
         self.spritemap['player'] = QPixmap(r"res/sprites/player.png")
         self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
 
-    def boundingRect(self):
+    def boundingRect(self) -> QRectF:
         width = self.squareWidth() * self.world.Width
         height = self.squareHeight() * self.world.Height
         return QRectF(0, 0, width, height)
 
-    def gridToPix(self, x, y):
+    def gridToPix(self, x, y) -> (int, int):
         rect = self.boundingRect()
         canvasTop = rect.bottom() - self.world.Height * self.squareHeight()
         xcoord, ycoord = rect.left() + x * self.squareWidth(), \
                          canvasTop + y * self.squareHeight()
         return xcoord, ycoord
 
-    def pixToGrid(self, x, y):
+    def pixToGrid(self, x, y) -> Space:
         rect = self.boundingRect()
         canvasTop = rect.bottom() - self.world.Height * self.squareHeight()
         gridx, gridy = (x - rect.left()) // self.squareWidth(), \
                        (y - canvasTop) // self.squareHeight()
-        return int(gridx), int(gridy)
+        return self.world.Map[int(gridy)][int(gridx)]
 
-    def squareWidth(self):
+    def squareWidth(self) -> int:
         '''returns the width of one square'''
 
         return self.spritemap['dirt'].width()
 
-    def squareHeight(self):
+    def squareHeight(self) -> int:
         '''returns the height of one square'''
 
         return self.spritemap['dirt'].height()
@@ -186,7 +189,10 @@ class WorldView(QGraphicsObject):
                     painter.drawPixmap(xcoord, ycoord,
                                        self.spritemap["water"])
                 if isinstance(space, Town):
+                    if space.Underwater:
+                        painter.setOpacity(.25)
                     painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
+                    painter.setOpacity(1)
                     if self.world.StartingTown == space:
                         painter.drawRect(xcoord, ycoord, self.squareWidth(), self.squareHeight())
                 if isinstance(space, Wilds):

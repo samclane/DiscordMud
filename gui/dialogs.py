@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
-    QVBoxLayout, QCheckBox
+    QVBoxLayout, QCheckBox, QErrorMessage
 
 from gamelogic import gamespace
 
@@ -70,6 +70,8 @@ class AddWorldDialog(QDialog):
 class AddTownDialog(QDialog):
     def __init__(self, parent=None, position=None):
         super().__init__(parent)
+        self.space = position
+        self.parent = parent
 
         nameLabel = QLabel("Town &name:")
         self.nameEdit = QLineEdit()
@@ -148,13 +150,20 @@ class AddTownDialog(QDialog):
         cancelButton.clicked.connect(self.reject)
 
     def onOk(self, event):
-        self.returnData = gamespace.Town(int(self.posXEdit.value()),
-                                         int(self.posYEdit.value()),
-                                         self.nameEdit.text(),
-                                         int(self.popEdit.text()),
-                                         self.industList[self.industCombo.currentText()])
-        self.isStartingTown = self.startingCheck.isChecked()
-        self.accept()
+        if not self.space.Terrain.isWalkable and self.startingCheck.isChecked():
+            error = QErrorMessage(self.parent)
+            error.showMessage("Cannot create a Starting Town on non-walkable terrain.")
+            self.reject()
+            error.exec_()
+        else:
+            self.returnData = gamespace.Town(int(self.posXEdit.value()),
+                                             int(self.posYEdit.value()),
+                                             self.nameEdit.text(),
+                                             int(self.popEdit.text()),
+                                             self.industList[self.industCombo.currentText()],
+                                             self.space.Terrain)
+            self.isStartingTown = self.startingCheck.isChecked()
+            self.accept()
 
 
 class AddWildsDialog(QDialog):
