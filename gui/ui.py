@@ -18,6 +18,8 @@ class MainWindow(QMainWindow):
     def __init__(self, app, world):
         super().__init__()
 
+        self.logger = logging.Logger('MainWindow')
+
         # Init Statusbar
         self.statusbar = self.statusBar()
 
@@ -60,12 +62,11 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(wildsAct)
 
         # Init window and show
-        self.setWindowTitle('DiscordMUD - Backend Manager')
+        self.setWindowTitle('DiscordMUD - {}'.format(world.Name))
         self.setWindowIcon(QIcon(r"res/icons/dungeon-gate.png"))
         self.showMaximized()
         self.worldFrame.resetViewport()
 
-        self.logger = logging.Logger('MainWindow')
         log_handler = logs.QPlainTextEditLogger(self)
         splitter1 = QSplitter(Qt.Vertical, self)
         splitter1.addWidget(self.worldFrame)

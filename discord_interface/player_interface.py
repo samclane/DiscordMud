@@ -22,8 +22,6 @@ class PlayerInterface(QObject):
         self.bot = bot
         self.world = world
         super().__init__(*args, **kwargs)
-        self.registered.connect(lambda *_: print('<Emitted "registered">'))
-        self.moved.connect(lambda *_: print('<Emitted "moved">'))
 
     def addPlayer(self, pid, pc):
         self.players[pid] = pc

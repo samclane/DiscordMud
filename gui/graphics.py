@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5.QtCore import pyqtSignal, QRectF, Qt
 from PyQt5.QtGui import QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
@@ -33,6 +35,8 @@ class WorldFrame(QGraphicsView):
         self.setDragMode(QGraphicsView.NoDrag)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.logger = parent.logger
 
     def fitInView(self, scale=True):
         rect = QRectF(self._worldview.boundingRect())
