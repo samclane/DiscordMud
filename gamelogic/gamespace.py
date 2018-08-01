@@ -128,14 +128,15 @@ class World:
         self.generateMap()
 
     def generateMap(self):
-        resolution = 0.2 * ((self.Width + self.Height) / 2)
+        resolution = 0.2 * (
+                    (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decent sized islands
         zconst = random.random()
         for x in range(self.Width):
             for y in range(self.Height):
                 self.Map[y][x] = Space(x, y, SandTerrain() if abs(
-                    pnoise3(x / resolution, y / resolution, zconst)) > .5 else WaterTerrain())
+                    pnoise3(x / resolution, y / resolution, zconst)) > .4 else WaterTerrain())
 
-    def isSpaceValid(self, space: (int, int)):
+    def isValidSpace(self, space: (int, int)):
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
 
     def addTown(self, town: Town, isStartingTown=False):
@@ -154,5 +155,5 @@ class World:
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
             self.Players.append(actor)
-        elif space and self.isSpaceValid(space):
+        elif space and self.isValidSpace(space):
             actor.Location = space
