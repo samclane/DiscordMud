@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QBrush, QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, QRectF, Qt
+from PyQt5.QtGui import QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import *
@@ -160,13 +160,11 @@ class WorldView(QGraphicsObject):
     def squareWidth(self):
         '''returns the width of one square'''
 
-        # return int((self.boundingRect().width() / self.world.Width))
         return self.spritemap['dirt'].width()
 
     def squareHeight(self):
         '''returns the height of one square'''
 
-        # return int((self.boundingRect().height() / self.world.Height))
         return self.spritemap['dirt'].height()
 
     def paint(self, painter, option, widget):

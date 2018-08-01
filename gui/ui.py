@@ -1,9 +1,12 @@
 import pickle
+import logging
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QAction, QStyle
+from PyQt5.QtWidgets import QMainWindow, QAction, QStyle, QSplitter
 
-from gui import graphics
+from gui import graphics, logs
+
 
 def Icon(parent, macro):
     """ Convenience method to easily access default Qt Icons """
@@ -57,11 +60,20 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(wildsAct)
 
         # Init window and show
-        self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('DiscordMUD - Backend Manager')
         self.setWindowIcon(QIcon(r"res/icons/dungeon-gate.png"))
-        self.show()
+        self.showMaximized()
         self.worldFrame.resetViewport()
+
+        self.logger = logging.Logger('MainWindow')
+        log_handler = logs.QPlainTextEditLogger(self)
+        splitter1 = QSplitter(Qt.Vertical, self)
+        splitter1.addWidget(self.worldFrame)
+        splitter1.addWidget(log_handler.widget)
+        splitter1.setStretchFactor(1, 0)
+        self.setCentralWidget(splitter1)
+
+        self.logger.addHandler(log_handler)
 
     def update(self):
         super().update()
@@ -69,6 +81,3 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         self.worldFrame.fitInView()
-
-
-

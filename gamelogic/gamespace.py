@@ -129,7 +129,7 @@ class World:
 
     def generateMap(self):
         resolution = 0.2 * (
-                    (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decent sized islands
+                (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decent sized islands
         zconst = random.random()
         for x in range(self.Width):
             for y in range(self.Height):
