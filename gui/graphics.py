@@ -1,5 +1,3 @@
-import logging
-
 from PyQt5.QtCore import pyqtSignal, QRectF, Qt
 from PyQt5.QtGui import QBrush, QColor, QPixmap
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
@@ -109,20 +107,23 @@ class WorldFrame(QGraphicsView):
         if event.buttons() & Qt.MiddleButton:
             self.toggleDragMode()
         elif event.buttons() & Qt.LeftButton:
-            if self.pointerMode == PointerMode.AddTown:
-                dialog = AddTownDialog(self, self.currentGridPoint)
-                if dialog.exec_():
-                    town = dialog.returnData
-                    self._world.addTown(town)
-                    if dialog.isStartingTown:
-                        self._world.StartingTown = town
-                self.pointerMode = PointerMode.Normal
-            if self.pointerMode == PointerMode.AddWilds:
-                dialog = AddWildsDialog(self, self.currentGridPoint)
-                if dialog.exec_():
-                    self._world.addWilds(dialog.returnData)
-                self.pointerMode = PointerMode.Normal
+            self.leftClickEvent(event)
         super().mousePressEvent(event)
+
+    def leftClickEvent(self, event):
+        if self.pointerMode == PointerMode.AddTown:
+            dialog = AddTownDialog(self, self.currentGridPoint)
+            if dialog.exec_():
+                town = dialog.returnData
+                self._world.addTown(town)
+                if dialog.isStartingTown:
+                    self._world.StartingTown = town
+            self.pointerMode = PointerMode.Normal
+        if self.pointerMode == PointerMode.AddWilds:
+            dialog = AddWildsDialog(self, self.currentGridPoint)
+            if dialog.exec_():
+                self._world.addWilds(dialog.returnData)
+            self.pointerMode = PointerMode.Normal
 
     def mouseReleaseEvent(self, event):
         if self.dragMode() == QGraphicsView.ScrollHandDrag:
@@ -145,34 +146,33 @@ class WorldView(QGraphicsObject):
         self.spritemap['player'] = QPixmap(r"res/sprites/player.png")
         self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
 
+        self.squareWidth = self.spritemap['dirt'].width()
+        self.squareHeight = self.spritemap['dirt'].height()
+        self.boundingWidth = self.squareWidth * self.world.Width
+        self.boundingHeight = self.squareHeight * self.world.Height
+
+        # Preload mapping from gridworld to GraphicsView
+        self.gridToPixMap = [[(0, 0) for _ in range(self.world.Width)] for _ in range(self.world.Height)]
+        rect = self.boundingRect()
+        canvasTop = rect.bottom() - self.world.Height * self.squareHeight
+        for y in range(self.world.Height):
+            for x in range(self.world.Width):
+                xcoord, ycoord = rect.left() + x * self.squareWidth, \
+                                 canvasTop + y * self.squareHeight
+                self.gridToPixMap[y][x] = (xcoord, ycoord)
+
     def boundingRect(self) -> QRectF:
-        width = self.squareWidth() * self.world.Width
-        height = self.squareHeight() * self.world.Height
-        return QRectF(0, 0, width, height)
+        return QRectF(0, 0, self.boundingWidth, self.boundingHeight)
 
     def gridToPix(self, x, y) -> (int, int):
-        rect = self.boundingRect()
-        canvasTop = rect.bottom() - self.world.Height * self.squareHeight()
-        xcoord, ycoord = rect.left() + x * self.squareWidth(), \
-                         canvasTop + y * self.squareHeight()
-        return xcoord, ycoord
+        return self.gridToPixMap[y][x]
 
     def pixToGrid(self, x, y) -> Space:
         rect = self.boundingRect()
-        canvasTop = rect.bottom() - self.world.Height * self.squareHeight()
-        gridx, gridy = (x - rect.left()) // self.squareWidth(), \
-                       (y - canvasTop) // self.squareHeight()
+        canvasTop = rect.bottom() - self.world.Height * self.squareHeight
+        gridx, gridy = (x - rect.left()) // self.squareWidth, \
+                       (y - canvasTop) // self.squareHeight
         return self.world.Map[int(gridy)][int(gridx)]
-
-    def squareWidth(self) -> int:
-        '''returns the width of one square'''
-
-        return self.spritemap['dirt'].width()
-
-    def squareHeight(self) -> int:
-        '''returns the height of one square'''
-
-        return self.spritemap['dirt'].height()
 
     def paint(self, painter, option, widget):
         # painter.drawTiledPixmap(self.boundingRect(), dirtpix, QPointF(0, 0)) # faster but less precise
@@ -194,7 +194,7 @@ class WorldView(QGraphicsObject):
                     painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
                     painter.setOpacity(1)
                     if self.world.StartingTown == space:
-                        painter.drawRect(xcoord, ycoord, self.squareWidth(), self.squareHeight())
+                        painter.drawRect(xcoord, ycoord, self.squareWidth, self.squareHeight)
                 if isinstance(space, Wilds):
                     painter.drawPixmap(xcoord, ycoord, self.spritemap["wild"])
 
