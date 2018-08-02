@@ -80,7 +80,7 @@ class Store:
         self.Inventory.append(item)
         return item.BaseValue / self.PriceRatio
 
-    def pprintInventory(self):
+    def formatInventory(self) -> str:
         msg = ""
         for idx, item in enumerate(self.Inventory):
             msg += "{}\t{}\t{}\n".format(idx,

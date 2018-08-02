@@ -72,7 +72,8 @@ class PlayerCharacter(Actor):
         super().__init__(*args, **kwargs)
 
         self.UserId: str = user_id
-        self.Name: str = "Unnamed"
+        if self.Name is None:
+            self.Name: str = "Unnamed"
         self.Class: PlayerClass = WandererClass()
         self.HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
         self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()

@@ -1,4 +1,5 @@
 import random
+from itertools import product
 
 import numpy
 from noise import pnoise3
@@ -9,6 +10,12 @@ from gamelogic import events, actors, items
 class Terrain:
     id: int = 0
     isWalkable: bool = False
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return str(self)
 
 
 class SandTerrain(Terrain):
@@ -38,6 +45,9 @@ class Space:
 
     def __str__(self):
         return "({}, {})".format(self.X, self.Y)
+
+    def __repr__(self):
+        return str((self.X, self.Y, self.Terrain))
 
     def __eq__(self, other):
         return self.X == other.X and self.Y == other.Y
@@ -153,6 +163,12 @@ class World:
 
     def isSpaceValid(self, space: (int, int)) -> bool:
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
+
+    def getAdjacentSpaces(self, space, sq_range=1):
+        fov = list(range(-sq_range, sq_range + 1))
+        steps = product(fov, repeat=2)
+        coords = (tuple(c + d for c, d in zip(space, delta)) for delta in steps)
+        return [self.Map[j][i] for i, j in coords]
 
     def addTown(self, town: Town, isStartingTown=False):
         self.Towns.append(town)

@@ -59,9 +59,11 @@ class PlayerInterface(QObject):
         msg = "User: {}\n" \
               "Player Name: {}\n" \
               "Class: {}\n" \
+              "Currency: {}\n" \
               "Equipment: \n{}".format(member.name,
                                        pc.Name,
                                        pc.Class.Name,
+                                       pc.Currency,
                                        str(pc.EquipmentSet))
         await self.bot.say(msg)
 
@@ -89,7 +91,6 @@ class PlayerInterface(QObject):
         member = ctx.message.author
         if not self.check_member(member):
             return
-
         # Ensure the direction given is valid
         pc = self.players[member.id]
         if time.time() - pc.TimeLastMoved < MOVEMENT_WAIT_TIME:
@@ -158,7 +159,7 @@ class PlayerInterface(QObject):
         loc = pc.Location
         town = self.world.Map[loc.Y][loc.X]
         if ctx.invoked_subcommand is None:
-            await self.bot.say(town.Store.pprintInventory())
+            await self.bot.say(town.Store.formatInventory())
 
     @store.command(pass_context=True)
     async def buy(self, ctx, index: int = None):
