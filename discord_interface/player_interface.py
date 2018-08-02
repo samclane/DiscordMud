@@ -116,15 +116,15 @@ class PlayerInterface(QObject):
         """
         await self.bot.say("UNIMPLEMENTED")
 
-    @commands.group(name="town", pass_context=True)
-    async def _town(self, ctx):
+    @commands.group(name="town", pass_context=True, invoke_without_command=True)
+    async def town(self, ctx):
         """ Menu to perform town interactions. """
         # Make checks to ensure user is in a town
+        member = ctx.message.author
+        if not self.check_member(member):
+            await self.bot.say("Please register first")
+            return
         if ctx.invoked_subcommand is None:
-            member = ctx.message.author
-            if not self.check_member(member):
-                await self.bot.say("Please register first")
-                return
             pc = self.players[member.id]
             for town in self.world.Towns:
                 if pc.Location == town:
@@ -133,7 +133,7 @@ class PlayerInterface(QObject):
             else:
                 await self.bot.say("Debug: You're NOT in a town!")
 
-    @_town.command(pass_context=True)
+    @town.command(pass_context=True)
     async def inn(self, ctx):
         """ Rest to restore hitpoints. """
         member = ctx.message.author
@@ -142,10 +142,31 @@ class PlayerInterface(QObject):
         town = self.world.Map[loc.Y][loc.X]
         if pc.Location in self.world.Towns:
             # Restore players' hitpoints
-            town.innEvent(pc)
-            await self.bot.say("HP Restored!")
+            response_text = town.innEvent(pc)
+            await self.bot.say(response_text)
         else:
             await self.bot.say("You're not in a Town, much less an Inn!")
+
+    @town.group(name="store", pass_context=True, invoke_without_command=True)
+    async def store(self, ctx):
+        member = ctx.message.author
+        pc = self.players[member.id]
+        loc = pc.Location
+        town = self.world.Map[loc.Y][loc.X]
+        if ctx.invoked_subcommand is None:
+            await self.bot.say(town.Store.pprintInventory())
+
+    @store.command(pass_context=True)
+    async def buy(self, ctx, index: int = None):
+        if index is None:
+            await self.bot.say("Please specify an item index.")
+            return
+        member = ctx.message.author
+        pc = self.players[member.id]
+        loc = pc.Location
+        town = self.world.Map[loc.Y][loc.X]
+        item = town.Store.sellItem(index)
+        # TODO Give user some sort of inventory/way to equip the item
 
 
 # a modified version of the 'cog' setup

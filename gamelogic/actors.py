@@ -23,7 +23,7 @@ class Actor:
     def attemptMove(self, shift: (int, int)) -> bool:
         new_space = self.Location + shift
         new_space = self.ParentWorld.Map[new_space.Y][new_space.X]
-        if not self.ParentWorld.isValidSpace(new_space):
+        if not self.ParentWorld.isSpaceValid(new_space):
             return False
         else:
             self.Location = new_space

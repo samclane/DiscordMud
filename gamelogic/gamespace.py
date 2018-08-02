@@ -3,7 +3,7 @@ import random
 import numpy
 from noise import pnoise3
 
-from gamelogic import events, actors
+from gamelogic import events, actors, items
 
 
 class Terrain:
@@ -94,10 +94,12 @@ class Town(Space):
         self.Population = population
         self.Industry = industry
         self.Terrain = terrain
+        self.Store = items.Store()
         self.Underwater = isinstance(self.Terrain, WaterTerrain)
 
-    def innEvent(self, pc: actors.PlayerCharacter):
+    def innEvent(self, pc: actors.PlayerCharacter) -> str:
         pc.HitPoints = pc.HitPointsMax
+        return "Your hitpoints have been restored, {}".format(pc.Name)
 
 
 class Wilds(Space):
@@ -149,7 +151,7 @@ class World:
                 self.Map[y][x] = Space(x, y, SandTerrain() if abs(
                     pnoise3(x / resolution, y / resolution, zconst)) > .4 else WaterTerrain())
 
-    def isValidSpace(self, space: (int, int)):
+    def isSpaceValid(self, space: (int, int)) -> bool:
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
 
     def addTown(self, town: Town, isStartingTown=False):
@@ -168,5 +170,5 @@ class World:
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
             self.Players.append(actor)
-        elif space and self.isValidSpace(space):
+        elif space and self.isSpaceValid(space):
             actor.Location = space

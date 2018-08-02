@@ -54,3 +54,34 @@ class EquipmentSet:
             self.MainHand.Name,
             self.OffHand.Name
         )
+
+
+class Store:
+    Inventory: [Equipment]
+    PriceRatio: float  # Lower means better buy/sell prices, higher means worse
+
+    def __init__(self):
+        self.Inventory = []
+        self.PriceRatio = 1.0
+
+    def getPrice(self, item: Equipment) -> float:
+        return item.BaseValue * self.PriceRatio
+
+    def sellItem(self, index: int) -> Equipment:
+        item = self.Inventory[index]
+        self.Inventory.remove(item)
+        return item
+
+    def buyItem(self, item: Equipment) -> float:
+        self.Inventory.append(item)
+        return item.BaseValue / self.PriceRatio
+
+    def pprintInventory(self):
+        msg = ""
+        for idx, item in enumerate(self.Inventory):
+            msg += "{}\t{}\t{}\n".format(idx,
+                                         item.Name,
+                                         item.BaseValue * self.PriceRatio)
+        if len(self.Inventory) == 0:
+            msg += "There are no items in the store at the moment. Please try again later."
+        return msg
