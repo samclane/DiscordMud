@@ -77,3 +77,5 @@ class PlayerCharacter(Actor):
         self.HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
         self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()
         self.FOV: int = self.FOV_Default
+        self.Inventory: [items.Equipment] = []
+        self.Currency: int = 0

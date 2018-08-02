@@ -162,11 +162,13 @@ class PlayerInterface(QObject):
             await self.bot.say("Please specify an item index.")
             return
         member = ctx.message.author
-        pc = self.players[member.id]
-        loc = pc.Location
+        player: actors.PlayerCharacter = self.players[member.id]
+        loc = player.Location
         town = self.world.Map[loc.Y][loc.X]
-        item = town.Store.sellItem(index)
-        # TODO Give user some sort of inventory/way to equip the item
+        if town.Store.sellItem(index, player):
+            await self.bot.say("Successfully made purchase.")
+        else:
+            await self.bot.say("Not enough money.")
 
 
 # a modified version of the 'cog' setup
