@@ -1,5 +1,3 @@
-from gamelogic import actors
-
 class Equipment:
 
     def __init__(self, name="Empty", type_="None", weight=0, base_value=0):
@@ -69,7 +67,7 @@ class Store:
     def getPrice(self, item: Equipment) -> float:
         return item.BaseValue * self.PriceRatio
 
-    def sellItem(self, index: int, player_character: actors.PlayerCharacter) -> bool:
+    def sellItem(self, index: int, player_character) -> bool:
         item = self.Inventory[index]
         price = self.getPrice(item)
         if player_character.Currency < price:

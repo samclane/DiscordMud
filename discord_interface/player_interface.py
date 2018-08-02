@@ -56,10 +56,14 @@ class PlayerInterface(QObject):
             await self.bot.say("You're not registered yet!")
             return
         pc = self.players[member.id]
-        await self.bot.say('User: {}'.format(member.name))
-        await self.bot.say('Player Name: {}'.format(pc.Name))
-        await self.bot.say('Class: {}'.format(pc.Class.Name))
-        await self.bot.say("Equipment: \n{}".format(str(pc.EquipmentSet)))
+        msg = "User: {}\n" \
+              "Player Name: {}\n" \
+              "Class: {}\n" \
+              "Equipment: \n{}".format(member.name,
+                                       pc.Name,
+                                       pc.Class.Name,
+                                       str(pc.EquipmentSet))
+        await self.bot.say(msg)
 
     @commands.command(pass_context=True)
     async def whereami(self, ctx: discord.ext.commands.context.Context):
