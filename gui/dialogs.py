@@ -18,12 +18,12 @@ class AddWorldDialog(QDialog):
 
         widthLabel = QLabel("&Width")
         self.widthEdit = QSpinBox()
-        self.widthEdit.setMaximum(100)
+        self.widthEdit.setMaximum(500)
         self.widthEdit.setValue(50)
         widthLabel.setBuddy(self.widthEdit)
         heightLabel = QLabel("&Height")
         self.heightEdit = QSpinBox()
-        self.heightEdit.setMaximum(100)
+        self.heightEdit.setMaximum(500)
         self.heightEdit.setValue(50)
         heightLabel.setBuddy(self.heightEdit)
 

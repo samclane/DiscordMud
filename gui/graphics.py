@@ -33,8 +33,14 @@ class WorldFrame(QGraphicsView):
         self.setDragMode(QGraphicsView.NoDrag)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setMouseTracking(True)
 
         self.logger = parent.logger
+
+        # TODO Delete this. Spritemap needs to be its own data structure
+        self.spritemap = dict()
+        self.spritemap['dirt'] = QPixmap(r"res/sprites/dirt.png")
+        self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
 
     def fitInView(self, scale=True):
         rect = QRectF(self._worldview.boundingRect())
@@ -71,8 +77,8 @@ class WorldFrame(QGraphicsView):
                 if p.Location == space:
                     players += p.Name + " "
         self.msg2Statusbar.emit("({}, {}) {} [{}]".format(int(gridx), int(gridy), landmark, players))
-        self.update()
         super().mouseMoveEvent(event)
+        self.update()
 
     def wheelEvent(self, event):
         if event.angleDelta().y() > 0:
@@ -92,23 +98,25 @@ class WorldFrame(QGraphicsView):
         super().update()
         self._worldview.update()
 
-    def toggleDragMode(self):
+    def changePointerMode(self, mode):
+        self.pointerMode = mode
+
+    def mousePressEvent(self, event):
+        if event.buttons() & Qt.MiddleButton:
+            self.middleClickEvent(event)
+        elif event.buttons() & Qt.LeftButton:
+            self.leftClickEvent(event)
+        elif event.buttons() & Qt.RightButton:
+            self.rightClickEvent(event)
+        super().mousePressEvent(event)
+
+    def middleClickEvent(self, event):
         if self.dragMode() == QGraphicsView.ScrollHandDrag:
             self.setDragMode(QGraphicsView.NoDrag)
             self.pointerMode = PointerMode.Normal
         else:
             self.setDragMode(QGraphicsView.ScrollHandDrag)
             self.pointerMode = PointerMode.Drag
-
-    def changePointerMode(self, mode):
-        self.pointerMode = mode
-
-    def mousePressEvent(self, event):
-        if event.buttons() & Qt.MiddleButton:
-            self.toggleDragMode()
-        elif event.buttons() & Qt.LeftButton:
-            self.leftClickEvent(event)
-        super().mousePressEvent(event)
 
     def leftClickEvent(self, event):
         if self.pointerMode == PointerMode.AddTown:
@@ -125,11 +133,34 @@ class WorldFrame(QGraphicsView):
                 self._world.addWilds(dialog.returnData)
             self.pointerMode = PointerMode.Normal
 
+    def rightClickEvent(self, event):
+        if self.pointerMode != PointerMode.Normal:
+            self.pointerMode = PointerMode.Normal
+        self.update()
+
     def mouseReleaseEvent(self, event):
         if self.dragMode() == QGraphicsView.ScrollHandDrag:
             self.setDragMode(QGraphicsView.NoDrag)
             self.pointerMode = PointerMode.Normal
         super().mouseReleaseEvent(event)
+
+    def drawBackground(self, painter, rect):
+        # Draw background color
+        super().drawBackground(painter, rect)
+
+        # Draw terrain
+        for i in range(self._world.Height):
+            for j in range(self._world.Width):
+                space = self._world.Map[i][j]
+                xcoord, ycoord = self._worldview.gridToPix(j, i)
+
+                # if isinstance(space.Terrain, SandTerrain):
+                if space.Terrain.id == SandTerrain.id:
+                    painter.drawPixmap(xcoord, ycoord,
+                                       self.spritemap["dirt"])
+                if space.Terrain.id == WaterTerrain.id:
+                    painter.drawPixmap(xcoord, ycoord,
+                                       self.spritemap["water"])
 
 
 class WorldView(QGraphicsObject):
@@ -175,19 +206,10 @@ class WorldView(QGraphicsObject):
         return self.world.Map[int(gridy)][int(gridx)]
 
     def paint(self, painter, option, widget):
-        # painter.drawTiledPixmap(self.boundingRect(), dirtpix, QPointF(0, 0)) # faster but less precise
-        # Draw terrain
         for i in range(self.world.Height):
             for j in range(self.world.Width):
                 space = self.world.Map[i][j]
                 xcoord, ycoord = self.gridToPix(j, i)
-
-                if isinstance(space.Terrain, SandTerrain):
-                    painter.drawPixmap(xcoord, ycoord,
-                                       self.spritemap["dirt"])  # TODO Shouldn't have to redraw background every frame
-                if isinstance(space.Terrain, WaterTerrain):
-                    painter.drawPixmap(xcoord, ycoord,
-                                       self.spritemap["water"])
                 if isinstance(space, Town):
                     if space.Underwater:
                         painter.setOpacity(.25)
