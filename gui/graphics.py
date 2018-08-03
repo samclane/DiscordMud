@@ -139,7 +139,7 @@ class WorldFrame(QGraphicsView):
             self.pointerMode = PointerMode.Drag
 
     def leftClickEvent(self, event):
-        self.saveSubimage(self._world.getAdjacentSpaces(self.currentGridPoint))  # TODO Remove me
+        # self.saveSubimage(self._world.getAdjacentSpaces(self.currentGridPoint))  # TODO Remove me
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
