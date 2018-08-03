@@ -56,10 +56,7 @@ class Space:
         if isinstance(other, Space):
             return Space(self.X + other.X, self.Y + other.Y, other.Terrain)
         else:
-            return Space(self.X + other[0], self.Y + other[1], Terrain())
-
-    def __hash__(self):
-        return self.X + 100 * self.Y
+            return Space(self.X + int(other[0]), self.Y + int(other[1]), Terrain())
 
     def __iter__(self):
         yield self.X
@@ -168,7 +165,7 @@ class World:
         fov = list(range(-sq_range, sq_range + 1))
         steps = product(fov, repeat=2)
         coords = (tuple(c + d for c, d in zip(space, delta)) for delta in steps)
-        return [self.Map[j][i] for i, j in coords]
+        return [self.Map[j][i] for i, j in coords if (0 <= i < self.Width) and (0 <= j < self.Height)]
 
     def addTown(self, town: Town, isStartingTown=False):
         self.Towns.append(town)

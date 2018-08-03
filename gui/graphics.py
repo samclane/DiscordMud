@@ -1,5 +1,7 @@
-from PyQt5.QtCore import pyqtSignal, QRectF, Qt
-from PyQt5.QtGui import QBrush, QColor, QPixmap
+from math import sqrt
+
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPoint, QRect, QPointF
+from PyQt5.QtGui import QBrush, QColor, QPixmap, QPainter
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import *
@@ -58,6 +60,24 @@ class WorldFrame(QGraphicsView):
     def resetViewport(self):
         self.fitInView()
         self.update()
+
+    def drawBackground(self, painter, rect):
+        # Draw background color
+        super().drawBackground(painter, rect)
+
+        # Draw terrain
+        for i in range(self._world.Height):
+            for j in range(self._world.Width):
+                space = self._world.Map[i][j]
+                point = self._worldview.gridToPix(j, i)
+
+                # if isinstance(space.Terrain, SandTerrain):
+                if space.Terrain.id == SandTerrain.id:
+                    painter.drawPixmap(point,
+                                       self.spritemap["dirt"])
+                if space.Terrain.id == WaterTerrain.id:
+                    painter.drawPixmap(point,
+                                       self.spritemap["water"])
 
     def mouseMoveEvent(self, event):
         point = self.mapToScene(event.x(), event.y())
@@ -119,6 +139,7 @@ class WorldFrame(QGraphicsView):
             self.pointerMode = PointerMode.Drag
 
     def leftClickEvent(self, event):
+        self.saveSubimage(self._world.getAdjacentSpaces(self.currentGridPoint))  # TODO Remove me
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
@@ -144,23 +165,28 @@ class WorldFrame(QGraphicsView):
             self.pointerMode = PointerMode.Normal
         super().mouseReleaseEvent(event)
 
-    def drawBackground(self, painter, rect):
-        # Draw background color
-        super().drawBackground(painter, rect)
+    def getBoundingSubrectangle(self, spaces: [Space]) -> QRectF:
+        def getTopLeftSpace(spaces):
+            minX = min([s.X for s in spaces])
+            minY = min([s.Y for s in spaces])
+            topLeft = [s for s in spaces if s.X == minX and s.Y == minY][0]
+            return topLeft
 
-        # Draw terrain
-        for i in range(self._world.Height):
-            for j in range(self._world.Width):
-                space = self._world.Map[i][j]
-                xcoord, ycoord = self._worldview.gridToPix(j, i)
+        topLeftSpace = getTopLeftSpace(spaces)
+        topLeftPix = self.mapFromParent(self._worldview.gridToPix(topLeftSpace.X, topLeftSpace.Y))
+        lengthSpaces = sqrt(len(spaces))
+        bottomRightSpace = topLeftSpace + (lengthSpaces, lengthSpaces)
+        bottomRightPix = self.mapFromParent(self._worldview.gridToPix(bottomRightSpace.X, bottomRightSpace.Y))
+        subBoundingRect = QRectF(topLeftPix, bottomRightPix)
+        return subBoundingRect
 
-                # if isinstance(space.Terrain, SandTerrain):
-                if space.Terrain.id == SandTerrain.id:
-                    painter.drawPixmap(xcoord, ycoord,
-                                       self.spritemap["dirt"])
-                if space.Terrain.id == WaterTerrain.id:
-                    painter.drawPixmap(xcoord, ycoord,
-                                       self.spritemap["water"])
+    def saveSubimage(self, spaces: [Space]):
+        # TODO This doesn't work, crashes if used twice. Currently bound to LMB
+        boundingRect = self.getBoundingSubrectangle(spaces)
+        pix = QPixmap(boundingRect.width(), boundingRect.height())
+        painter = QPainter(pix)
+        self.render(painter, boundingRect)
+        pix.save("{}.JPG", "JPG")
 
 
 class WorldView(QGraphicsObject):
@@ -183,19 +209,19 @@ class WorldView(QGraphicsObject):
         self.boundingHeight = self.squareHeight * self.world.Height
 
         # Preload mapping from gridworld to GraphicsView
-        self.gridToPixMap = [[(0, 0) for _ in range(self.world.Width)] for _ in range(self.world.Height)]
+        self.gridToPixMap = [[QPoint(0, 0) for _ in range(self.world.Width)] for _ in range(self.world.Height)]
         rect = self.boundingRect()
         canvasTop = rect.bottom() - self.world.Height * self.squareHeight
         for y in range(self.world.Height):
             for x in range(self.world.Width):
                 xcoord, ycoord = rect.left() + x * self.squareWidth, \
                                  canvasTop + y * self.squareHeight
-                self.gridToPixMap[y][x] = (xcoord, ycoord)
+                self.gridToPixMap[y][x] = QPoint(xcoord, ycoord)
 
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.boundingWidth, self.boundingHeight)
 
-    def gridToPix(self, x, y) -> (int, int):
+    def gridToPix(self, x: int, y: int) -> QPoint:
         return self.gridToPixMap[y][x]
 
     def pixToGrid(self, x, y) -> Space:
@@ -209,28 +235,28 @@ class WorldView(QGraphicsObject):
         for i in range(self.world.Height):
             for j in range(self.world.Width):
                 space = self.world.Map[i][j]
-                xcoord, ycoord = self.gridToPix(j, i)
+                point = self.gridToPix(j, i)
                 if isinstance(space, Town):
                     if space.Underwater:
                         painter.setOpacity(.25)
-                    painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
+                    painter.drawPixmap(point, self.spritemap["town"])
                     painter.setOpacity(1)
                     if self.world.StartingTown == space:
-                        painter.drawRect(xcoord, ycoord, self.squareWidth, self.squareHeight)
+                        painter.drawRect(point.x(), point.y(), self.squareWidth, self.squareHeight)
                 if isinstance(space, Wilds):
-                    painter.drawPixmap(xcoord, ycoord, self.spritemap["wild"])
+                    painter.drawPixmap(point, self.spritemap["wild"])
 
         # Draw PCs
         for player in self.world.Players:
-            xcoord, ycoord = self.gridToPix(player.Location.X, player.Location.Y)
-            painter.drawPixmap(xcoord, ycoord, self.spritemap["player"])
+            point = self.gridToPix(player.Location.X, player.Location.Y)
+            painter.drawPixmap(point, self.spritemap["player"])
 
         # Draw pointers
         if self.parent.pointerMode != PointerMode.Normal:
             point = self.parent.currentGridPoint
-            xcoord, ycoord = self.gridToPix(*point)
+            pixPoint = self.gridToPix(*point)
             painter.setOpacity(.5)
             if self.parent.pointerMode == PointerMode.AddTown:
-                painter.drawPixmap(xcoord, ycoord, self.spritemap["town"])
+                painter.drawPixmap(pixPoint, self.spritemap["town"])
             elif self.parent.pointerMode == PointerMode.AddWilds:
-                painter.drawPixmap(xcoord, ycoord, self.spritemap["wild"])
+                painter.drawPixmap(pixPoint, self.spritemap["wild"])
