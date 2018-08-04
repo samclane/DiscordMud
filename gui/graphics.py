@@ -1,7 +1,7 @@
 from math import sqrt
 
 from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPoint, QRect, QPointF
-from PyQt5.QtGui import QBrush, QColor, QPixmap, QPainter
+from PyQt5.QtGui import QBrush, QColor, QPixmap, QPainter, QImage
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 
 from gamelogic.gamespace import *
@@ -39,11 +39,6 @@ class WorldFrame(QGraphicsView):
 
         self.logger = parent.logger
 
-        # TODO Delete this. Spritemap needs to be its own data structure
-        self.spritemap = dict()
-        self.spritemap['dirt'] = QPixmap(r"res/sprites/dirt.png")
-        self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
-
     def fitInView(self, scale=True):
         rect = QRectF(self._worldview.boundingRect())
         if not rect.isNull():
@@ -60,24 +55,6 @@ class WorldFrame(QGraphicsView):
     def resetViewport(self):
         self.fitInView()
         self.update()
-
-    def drawBackground(self, painter, rect):
-        # Draw background color
-        super().drawBackground(painter, rect)
-
-        # Draw terrain
-        for i in range(self._world.Height):
-            for j in range(self._world.Width):
-                space = self._world.Map[i][j]
-                point = self._worldview.gridToPix(j, i)
-
-                # if isinstance(space.Terrain, SandTerrain):
-                if space.Terrain.id == SandTerrain.id:
-                    painter.drawPixmap(point,
-                                       self.spritemap["dirt"])
-                if space.Terrain.id == WaterTerrain.id:
-                    painter.drawPixmap(point,
-                                       self.spritemap["water"])
 
     def mouseMoveEvent(self, event):
         point = self.mapToScene(event.x(), event.y())
@@ -139,7 +116,6 @@ class WorldFrame(QGraphicsView):
             self.pointerMode = PointerMode.Drag
 
     def leftClickEvent(self, event):
-        # self.saveSubimage(self._world.getAdjacentSpaces(self.currentGridPoint))  # TODO Remove me
         if self.pointerMode == PointerMode.AddTown:
             dialog = AddTownDialog(self, self.currentGridPoint)
             if dialog.exec_():
@@ -172,21 +148,31 @@ class WorldFrame(QGraphicsView):
             topLeft = [s for s in spaces if s.X == minX and s.Y == minY][0]
             return topLeft
 
+        def getBottomRightSpace(spaces):
+            maxX = max([s.X for s in spaces])
+            maxY = max([s.Y for s in spaces])
+            botRight = [s for s in spaces if s.X == maxX and s.Y == maxY][0]
+            return botRight
+
         topLeftSpace = getTopLeftSpace(spaces)
         topLeftPix = self.mapFromParent(self._worldview.gridToPix(topLeftSpace.X, topLeftSpace.Y))
-        lengthSpaces = sqrt(len(spaces))
-        bottomRightSpace = topLeftSpace + (lengthSpaces, lengthSpaces)
-        bottomRightPix = self.mapFromParent(self._worldview.gridToPix(bottomRightSpace.X, bottomRightSpace.Y))
+        bottomRightSpace = getBottomRightSpace(spaces)
+        bottomRightPix = self.mapFromParent(self._worldview.gridToPix(bottomRightSpace.X, bottomRightSpace.Y)) + \
+                         QPoint(self._worldview.squareWidth, self._worldview.squareHeight)
         subBoundingRect = QRectF(topLeftPix, bottomRightPix)
         return subBoundingRect
 
     def saveSubimage(self, spaces: [Space]):
-        # TODO This doesn't work, crashes if used twice. Currently bound to LMB
+        self._scene.clearSelection()
         boundingRect = self.getBoundingSubrectangle(spaces)
-        pix = QPixmap(boundingRect.width(), boundingRect.height())
+        self._scene.setSceneRect(boundingRect)
+        pix = QImage(self._scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
+        pix.fill(Qt.TransparentMode)
         painter = QPainter(pix)
-        self.render(painter, boundingRect)
-        pix.save("{}.JPG", "JPG")
+        painter.setRenderHint(QPainter.Antialiasing)
+        self._scene.render(painter)
+        painter.end()  # Removing will cause silent crash
+        pix.save("capture.png")
 
 
 class WorldView(QGraphicsObject):
@@ -236,6 +222,13 @@ class WorldView(QGraphicsObject):
             for j in range(self.world.Width):
                 space = self.world.Map[i][j]
                 point = self.gridToPix(j, i)
+                # Draw terrain
+                if space.Terrain.id == SandTerrain.id:
+                    painter.drawPixmap(point,
+                                       self.spritemap["dirt"])
+                if space.Terrain.id == WaterTerrain.id:
+                    painter.drawPixmap(point,
+                                       self.spritemap["water"])
                 if isinstance(space, Town):
                     if space.Underwater:
                         painter.setOpacity(.25)
@@ -260,3 +253,7 @@ class WorldView(QGraphicsObject):
                 painter.drawPixmap(pixPoint, self.spritemap["town"])
             elif self.parent.pointerMode == PointerMode.AddWilds:
                 painter.drawPixmap(pixPoint, self.spritemap["wild"])
+
+        if hasattr(self.parent, "currentGridPoint"):  # Draw grid cursor if mouse is on self
+            painter.drawRect(
+                self.parent.getBoundingSubrectangle(self.world.getAdjacentSpaces(self.parent.currentGridPoint, 0)))

@@ -10,7 +10,7 @@ from gamelogic import events, gamespace
 from gui import ui
 from gui.dialogs import AddWorldDialog
 
-world = None
+world: gamespace.World = None
 app = None
 
 game_channel = None  # The public text channel where public events take place
@@ -31,15 +31,18 @@ def default_init(xWidth, yHeight):
     world.StartingTown = example_town
     return world
 
-
-# This is required to get PyQt to print runtime exceptions
-def excepthook(cls, exception, traceback):
-    raise Exception("{}".format(exception))
-
-
 if __name__ == "__main__":
     import discord_interface.player_interface as player_interface
     import discord_interface.basic_bot as gBot
+
+    sys._excepthook = sys.excepthook
+
+
+    # This is required to get PyQt to print runtime exceptions
+    def excepthook(cls, exception, traceback):
+        print(cls, exception, traceback)
+        sys._excepthook(cls, exception, traceback)
+        sys.exit(1)
 
     sys.excepthook = excepthook
 
@@ -69,6 +72,8 @@ if __name__ == "__main__":
     pi.registered.connect(lambda pc: main_window.logger.info(pc.Name + " has joined the world."))
     pi.moved.connect(main_window.update)
     pi.moved.connect(lambda pc: main_window.logger.info("{} has moved to {}".format(pc.Name, pc.Location)))
+    pi.requestScreenshot.connect(
+        lambda pc: main_window.worldFrame.saveSubimage(world.getAdjacentSpaces(pc.Location, pc.FOV_Default)))
 
     # Begin application, and exit when it returns
     sys.exit(app.exec_())

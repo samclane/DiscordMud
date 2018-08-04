@@ -8,7 +8,7 @@ import discord
 from PyQt5.QtCore import pyqtSignal, QObject
 from discord.ext import commands
 
-from gamelogic import actors
+from gamelogic import actors, gamespace
 
 MOVEMENT_WAIT_TIME = .01  # seconds
 
@@ -16,6 +16,7 @@ MOVEMENT_WAIT_TIME = .01  # seconds
 class PlayerInterface(QObject):
     registered = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
     moved = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
+    requestScreenshot = pyqtSignal(actors.PlayerCharacter)
 
     def __init__(self, bot, world, *args, **kwargs):
         self.players = {pc.UserId: pc for pc in world.Players}  # Maps DiscordId -> PlayerCharacter
@@ -83,7 +84,10 @@ class PlayerInterface(QObject):
             message += 'You are also in the town ' + self.world.Map[l.Y][l.X].Name + '.'
         if pc.Location in self.world.Wilds:
             message += 'You are also in the wilds, nicknamed ' + self.world.Map[l.Y][l.X].Name + '.'
-        await self.bot.say(message)
+        self.requestScreenshot.emit(pc)
+        time.sleep(.05)  # TODO Make this not blocking
+        with open(r"./capture.png", 'rb') as f:
+            await self.bot.send_file(ctx.message.author, f, content=message)
 
     @commands.command(pass_context=True)
     async def go(self, ctx: discord.ext.commands.context.Context, direction: str):
@@ -109,17 +113,6 @@ class PlayerInterface(QObject):
             pc.TimeLastMoved = time.time()
         else:
             await self.bot.say("Move would put you outside the map!")
-
-    @commands.command(pass_context=True)
-    async def world(self, ctx):
-        """ TODO Get a picture of the current gameworld. """
-        """
-        # we need to take a picture of the canvas
-        pic_path = app.get_canvas_image()
-        with open(pic_path, 'rb') as f:
-            await bot.send_file(ctx.message.author, f)
-        """
-        await self.bot.say("UNIMPLEMENTED")
 
     @commands.group(name="town", pass_context=True, invoke_without_command=True)
     async def town(self, ctx):
