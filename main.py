@@ -2,7 +2,6 @@ import os
 import pickle
 import sys
 import threading
-import logging
 
 from PyQt5.QtWidgets import QApplication
 
@@ -31,6 +30,7 @@ def default_init(xWidth, yHeight):
     world.StartingTown = example_town
     return world
 
+
 if __name__ == "__main__":
     import discord_interface.player_interface as player_interface
     import discord_interface.basic_bot as gBot
@@ -43,6 +43,7 @@ if __name__ == "__main__":
         print(cls, exception, traceback)
         sys._excepthook(cls, exception, traceback)
         sys.exit(1)
+
 
     sys.excepthook = excepthook
 

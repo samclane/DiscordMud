@@ -8,7 +8,7 @@ import discord
 from PyQt5.QtCore import pyqtSignal, QObject
 from discord.ext import commands
 
-from gamelogic import actors, gamespace
+from gamelogic import actors
 
 MOVEMENT_WAIT_TIME = .01  # seconds
 

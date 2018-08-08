@@ -1,6 +1,4 @@
-from math import sqrt
-
-from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPoint, QRect, QPointF
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt, QPoint
 from PyQt5.QtGui import QBrush, QColor, QPixmap, QPainter, QImage
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsObject, QFrame
 

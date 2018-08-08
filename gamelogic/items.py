@@ -1,44 +1,53 @@
 class Equipment:
+    Name: str
+    Weight: int
+    BaseValue: int
 
-    def __init__(self, name="Empty", type_="None", weight=0, base_value=0):
+    def __init__(self, name="Empty", weight=0, base_value=0):
         self.Name = name
-        self.Type = type_
         self.Weight = weight
         self.BaseValue = base_value
 
 
 class HeadEquipment(Equipment):
-    Type = "Head"
+    Type: str = "Head"
 
 
 class ChestEquipment(Equipment):
-    Type = "Chest"
+    Type: str = "Chest"
 
 
 class LegsEquipment(Equipment):
-    Type = "Legs"
+    Type: str = "Legs"
 
 
 class FeetEquipment(Equipment):
-    Type = "Feet"
+    Type: str = "Feet"
 
 
 class MainHandEquipment(Equipment):
-    Type = "Main Hand"
+    Type: str = "Main Hand"
 
 
 class OffHandEquipment(Equipment):
-    Type = "Off Hand"
+    Type: str = "Off Hand"
 
 
 class EquipmentSet:
+    Head: HeadEquipment
+    Chest: ChestEquipment
+    Legs: LegsEquipment
+    Feet: FeetEquipment
+    MainHand: MainHandEquipment
+    OffHand: OffHandEquipment
+
     def __init__(self):
-        self.Head: HeadEquipment = HeadEquipment()
-        self.Chest: ChestEquipment = ChestEquipment()
-        self.Legs: LegsEquipment = LegsEquipment()
-        self.Feet: FeetEquipment = FeetEquipment()
-        self.MainHand: MainHandEquipment = MainHandEquipment()
-        self.OffHand: OffHandEquipment = OffHandEquipment()
+        self.Head = HeadEquipment()
+        self.Chest = ChestEquipment()
+        self.Legs = LegsEquipment()
+        self.Feet = FeetEquipment()
+        self.MainHand = MainHandEquipment()
+        self.OffHand = OffHandEquipment()
 
     def __str__(self):
         return "Head: {}\r\n" \

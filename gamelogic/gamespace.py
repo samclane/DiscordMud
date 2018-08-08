@@ -104,7 +104,7 @@ class Town(Space):
         self.Store = items.Store()
         self.Underwater = isinstance(self.Terrain, WaterTerrain)
 
-    def innEvent(self, pc: actors.PlayerCharacter) -> str:
+    def innEvent(self, pc) -> str:
         pc.HitPoints = pc.HitPointsMax
         return "Your hitpoints have been restored, {}".format(pc.Name)
 
