@@ -33,6 +33,11 @@ class WaterTerrain(Terrain):
     isWalkable = False
 
 
+class MountainTerrain(Terrain):
+    id = 4
+    isWalkable = True
+
+
 class Space:
     X: int
     Y: int
@@ -151,17 +156,26 @@ class World:
 
     def generateMap(self):
         resolution = 0.2 * (
-                (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decent sized islands
-        zconst = random.random()
+                (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decently scaled noise.
+        sand_slice = random.random()
+        mountain_slice = random.random()
+        water_threshold = .1  # Higher water-factor -> more water on map
+        mountain_threshold = .7  # Lower mountain_thresh -> less mountains
         for x in range(self.Width):
             for y in range(self.Height):
+                # Land and water pass
                 self.Map[y][x] = Space(x, y, SandTerrain() if abs(
-                    pnoise3(x / resolution, y / resolution, zconst)) > .4 else WaterTerrain())
+                    pnoise3(x / resolution, y / resolution, sand_slice)) > water_threshold else WaterTerrain())
+
+                # Mountains pass
+                if abs(pnoise3(x / resolution, y / resolution, mountain_slice)) > mountain_threshold and self.Map[y][
+                    x].Terrain.isWalkable:
+                    self.Map[y][x] = Space(x, y, MountainTerrain())
 
     def isSpaceValid(self, space: (int, int)) -> bool:
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
 
-    def getAdjacentSpaces(self, space, sq_range=1):
+    def getAdjacentSpaces(self, space, sq_range: int = 1) -> [Space]:
         fov = list(range(-sq_range, sq_range + 1))
         steps = product(fov, repeat=2)
         coords = (tuple(c + d for c, d in zip(space, delta)) for delta in steps)
