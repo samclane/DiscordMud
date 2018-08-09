@@ -74,9 +74,11 @@ class WeaponsTest(unittest.TestCase):
         w = Weapon(dmg, name=name, weight=weight, base_value=value)
         r = RangedWeapon(rng, base_damage=dmg, name=name, weight=weight, base_value=value)
         p = ProjectileWeapon(ProjectileType.Thrown, base_damage=dmg, name=name, weight=weight, base_value=value)
-        f1 = Firearm(Caliber.BB, burst_size=3, capacity=capacity, base_damage=dmg, name=name, weight=weight,
+        f1 = Firearm(Caliber.BB, FiringAction.BurstFireOnly, burst_size=3, capacity=capacity, base_damage=dmg,
+                     name=name, weight=weight,
                      base_value=value)
-        f2 = Firearm(Caliber.BB, capacity=1, base_damage=dmg, name=name, weight=weight, base_value=value)
+        f2 = Firearm(Caliber.BB, FiringAction.SingleShot, capacity=1, base_damage=dmg, name=name, weight=weight,
+                     base_value=value)
         m = MeleeWeapon(dmg, name=name, weight=weight, base_value=value)
         b = BladedWeapon(chance, factor, dmg, name=name, weight=weight, base_value=value)
         bu = BluntWeapon(chance, dmg, name=name, weight=weight, base_value=value)
@@ -93,3 +95,5 @@ class WeaponsTest(unittest.TestCase):
         self.assertEqual(f1.currentCapacity, capacity - f1.BurstSize)
         f2.fire()
         self.assertTrue(f2.isEmpty)
+        f1.reload()
+        self.assertEqual(f1.currentCapacity, capacity)
