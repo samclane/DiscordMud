@@ -1,27 +1,44 @@
 class Equipment:
     Name: str
-    Weight: int
+    WeightLb: float
     BaseValue: int
 
-    def __init__(self, name="Empty", weight=0, base_value=0):
+    def __init__(self, name: str = "Empty", weightlb: float = 0, base_value: int = 0):
         self.Name = name
-        self.Weight = weight
+        self.WeightLb = weightlb
         self.BaseValue = base_value
 
+    def __str__(self):
+        return self.Name
 
-class HeadEquipment(Equipment):
+    def onEquip(self):
+        pass
+
+
+class Armor(Equipment):
+    ArmorCount: int
+
+    def __init__(self, armor_count=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ArmorCount = armor_count
+
+    def activateUtility(self, player_character):
+        pass
+
+
+class HeadArmor(Armor):
     Type: str = "Head"
 
 
-class ChestEquipment(Equipment):
+class ChestArmor(Armor):
     Type: str = "Chest"
 
 
-class LegsEquipment(Equipment):
+class LegArmor(Armor):
     Type: str = "Legs"
 
 
-class FeetEquipment(Equipment):
+class FootArmor(Armor):
     Type: str = "Feet"
 
 
@@ -34,18 +51,18 @@ class OffHandEquipment(Equipment):
 
 
 class EquipmentSet:
-    Head: HeadEquipment
-    Chest: ChestEquipment
-    Legs: LegsEquipment
-    Feet: FeetEquipment
+    Head: HeadArmor
+    Chest: ChestArmor
+    Legs: LegArmor
+    Feet: FootArmor
     MainHand: MainHandEquipment
     OffHand: OffHandEquipment
 
     def __init__(self):
-        self.Head = HeadEquipment()
-        self.Chest = ChestEquipment()
-        self.Legs = LegsEquipment()
-        self.Feet = FeetEquipment()
+        self.Head = HeadArmor()
+        self.Chest = ChestArmor()
+        self.Legs = LegArmor()
+        self.Feet = FootArmor()
         self.MainHand = MainHandEquipment()
         self.OffHand = OffHandEquipment()
 

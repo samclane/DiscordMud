@@ -23,10 +23,10 @@ class PlayerTest(unittest.TestCase):
 
     def test_equipment(self):
         es = EquipmentSet()
-        es.Chest = ChestEquipment('Chain Mail', 100, 1000)
-        es.Head = HeadEquipment('Steel Helmet', 100, 1000)
-        es.Feet = FeetEquipment('Steel Boots', 100, 1000)
-        es.Legs = LegsEquipment('Pantaloons', 100, 1000)
+        es.Chest = ChestArmor(1, 'Chain Mail', 100, 1000)
+        es.Head = HeadArmor(1, 'Steel Helmet', 100, 1000)
+        es.Feet = FootArmor(1, 'Steel Boots', 100, 1000)
+        es.Legs = LegArmor(0, 'Pantaloons', 100, 1000)
         es.MainHand = MainHandEquipment('Steel Sword', 10, 100)
         es.OffHand = OffHandEquipment('Shield', 10, 1000)
         self.assertEqual(es.Chest.Name, 'Chain Mail')
@@ -71,17 +71,25 @@ class WeaponsTest(unittest.TestCase):
         chance = 0.5
         factor = 0.1
         capacity = 30
-        w = Weapon(dmg, name=name, weight=weight, base_value=value)
-        r = RangedWeapon(rng, base_damage=dmg, name=name, weight=weight, base_value=value)
-        p = ProjectileWeapon(ProjectileType.Thrown, base_damage=dmg, name=name, weight=weight, base_value=value)
+        w = Weapon(dmg, name=name, weightlb=weight, base_value=value)
+        r = RangedWeapon(rng, base_damage=dmg, name=name, weightlb=weight, base_value=value)
+        p = ProjectileWeapon(ProjectileType.Thrown, base_damage=dmg, name=name, weightlb=weight, base_value=value)
         f1 = Firearm(Caliber.BB, FiringAction.BurstFireOnly, burst_size=3, capacity=capacity, base_damage=dmg,
-                     name=name, weight=weight,
+                     name=name, weightlb=weight,
                      base_value=value)
-        f2 = Firearm(Caliber.BB, FiringAction.SingleShot, capacity=1, base_damage=dmg, name=name, weight=weight,
+        f2 = Firearm(Caliber.BB, FiringAction.SingleShot, capacity=1, base_damage=dmg, name=name, weightlb=weight,
                      base_value=value)
-        m = MeleeWeapon(dmg, name=name, weight=weight, base_value=value)
-        b = BladedWeapon(chance, factor, dmg, name=name, weight=weight, base_value=value)
-        bu = BluntWeapon(chance, dmg, name=name, weight=weight, base_value=value)
+        m = MeleeWeapon(dmg, name=name, weightlb=weight, base_value=value)
+        b = BladedWeapon(chance, factor, dmg, name=name, weightlb=weight, base_value=value)
+        bu = BluntWeapon(chance, dmg, name=name, weightlb=weight, base_value=value)
+        re = WeblyRevolver()
+        aps = APS()
+        pp = PPSh41()
+        ow = OwenSMG()
+        ak = AK47()
+        hk = HKG3()
+        j = Jezail()
+        fn = FNMinimi()
 
         self.assertEqual(r.Range, rng)
         self.assertEqual(f1.Range, 1)
@@ -97,3 +105,7 @@ class WeaponsTest(unittest.TestCase):
         self.assertTrue(f2.isEmpty)
         f1.reload()
         self.assertEqual(f1.currentCapacity, capacity)
+        aps.toggleAction()
+        self.assertEqual(aps.Action, FiringAction.FullyAutomatic)
+        aps.toggleAction()
+        self.assertEqual(aps.Action, FiringAction.SemiAutomatic)
