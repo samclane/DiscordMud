@@ -109,7 +109,7 @@ class Firearm(ProjectileWeapon):
     _action: int
     BurstSize: int
 
-    def __init__(self, caliber: int, action=FiringAction.SingleShot, burst_size=1, *args, **kwargs):
+    def __init__(self, caliber: int, action: int = FiringAction.SingleShot, burst_size: int = 1, *args, **kwargs):
         super().__init__(ProjectileType.Bullet, *args, **kwargs)
         self.Caliber = caliber
         self._action = action
@@ -140,16 +140,19 @@ class SelectiveFire(Firearm):
             self._action = FiringAction.SemiAutomatic
 
 
+class FullyImplemented(Weapon):
+    pass
+
+
 class Pistol(Firearm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
-class WeblyRevolver(Pistol):
+class WeblyRevolver(Pistol, FullyImplemented):
     """
     Based on the Webly Mk. IV
     """
+    Name: str = "Webly Mk. IV Revolver"
 
     def __init__(self):
         super().__init__(caliber=Caliber.IN_38,
@@ -157,14 +160,15 @@ class WeblyRevolver(Pistol):
                          capacity=6,
                          range_falloff=.5,
                          base_damage=10,
-                         name="Webly Mk. IV Revolver",
+                         name=self.Name,
                          weightlb=2.4)
 
 
-class M1911(Pistol):
+class M1911(Pistol, FullyImplemented):
     """
     Based on the M1911
     """
+    Name: str = "M1911 Pistol"
 
     def __init__(self):
         super().__init__(caliber=Caliber.IN_45,
@@ -172,14 +176,15 @@ class M1911(Pistol):
                          capacity=7,
                          range_falloff=.4,
                          base_damage=8,
-                         name="M1911 Pistol",
+                         name=self.Name,
                          weightlb=2.44)
 
 
-class APS(Pistol, SelectiveFire):
+class APS(Pistol, SelectiveFire, FullyImplemented):
     """
     Based on the Stechkin automatic pistol (APS)
     """
+    Name: str = "Stechkin Automatic Pistol"
 
     def __init__(self):
         super().__init__(caliber=Caliber.MM_9,
@@ -187,20 +192,19 @@ class APS(Pistol, SelectiveFire):
                          capacity=20,
                          range_falloff=.7,
                          base_damage=4,
-                         name="Stechkin Automatic Pistol",
+                         name=self.Name,
                          weightlb=2.69)
 
 
 class SMG(Firearm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
-class PPSh41(SMG, SelectiveFire):
+class PPSh41(SMG, SelectiveFire, FullyImplemented):
     """
     Based on the PPSh-41 (Shpagin machine pistol)
     """
+    Name: str = "PPSh-41 (Shpagin machine pistol)"
 
     def __init__(self):
         super().__init__(caliber=Caliber.MM_762,
@@ -208,14 +212,15 @@ class PPSh41(SMG, SelectiveFire):
                          capacity=35,
                          range_falloff=.55,
                          base_damage=7,
-                         name="PPSh-41 (Shpagin machine pistol)",
+                         name=self.Name,
                          weightlb=8.0)
 
 
-class OwenSMG(SMG):
+class OwenSMG(SMG, FullyImplemented):
     """
     Based on the Owen Machine Carbine (Australian)
     """
+    Name: str = "Owen Machine Carbine"
 
     def __init__(self):
         super().__init__(caliber=Caliber.MM_9,
@@ -223,20 +228,19 @@ class OwenSMG(SMG):
                          capacity=33,
                          range_falloff=.7,
                          base_damage=4,
-                         name="Owen Machine Carbine",
+                         name=self.Name,
                          weightlb=9.33)
 
 
 class Rifle(Firearm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
-class AK47(Rifle, SelectiveFire):
+class AK47(Rifle, SelectiveFire, FullyImplemented):
     """
     Based on the AK-47
     """
+    Name: str = "AK-47"
 
     def __init__(self):
         super().__init__(caliber=Caliber.MM_762,
@@ -244,14 +248,15 @@ class AK47(Rifle, SelectiveFire):
                          capacity=30,
                          range_falloff=.35,
                          base_damage=15,
-                         name="AK-47",
+                         name=self.Name,
                          weightlb=7.7)
 
 
-class HKG3(Rifle, SelectiveFire):
+class HKG3(Rifle, SelectiveFire, FullyImplemented):
     """
     Based on the Heckler & Koch G3
     """
+    Name: str = "Heckler & Koch G3"
 
     def __init__(self):
         super().__init__(caliber=Caliber.MM_762,
@@ -259,15 +264,16 @@ class HKG3(Rifle, SelectiveFire):
                          capacity=20,
                          range_falloff=.3,
                          base_damage=14,
-                         name="Heckler & Koch G3",
+                         name=self.Name,
                          weightlb=9.7)
 
 
-class Jezail(Rifle):
+class Jezail(Rifle, FullyImplemented):
     """
     Based on the Jezail Musket
     https://en.wikipedia.org/wiki/Jezail
     """
+    Name: str = "Jezail Musket"
 
     def __init__(self):
         super().__init__(caliber=Caliber.BB,
@@ -275,7 +281,7 @@ class Jezail(Rifle):
                          capacity=1,
                          range_falloff=.3,
                          base_damage=20,
-                         name="Jezail Musket",
+                         name=self.Name,
                          weightlb=12)
 
     # TODO Give 2x dmg bonus if PlayerCharacter is on a mountain and target is not
@@ -283,7 +289,7 @@ class Jezail(Rifle):
 
 class MachineGun(Firearm):
 
-    def __init__(self, mountable=False, *args, **kwargs):
+    def __init__(self, mountable: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._mountable = mountable
         self._mounted = False
@@ -298,19 +304,22 @@ class MachineGun(Firearm):
 
     @Mounted.setter
     def Mounted(self, new: bool):
+        if self.Mounted == new:  # no change; don't do anything
+            return
         if not self.Mountable:
             raise AttributeError("Cannot change mounting status of unmountable MachineGun.")
-        self._mounted = new
         if self.Mounted:
             self.RangeFalloff -= .1
         else:
             self.RangeFalloff += .1
+        self._mounted = new
 
 
-class FNMinimi(MachineGun):
+class FNMinimi(MachineGun, FullyImplemented):
     """
     Based on the FN Minimi
     """
+    Name: str = "FN Minimi"
 
     def __init__(self):
         super().__init__(mountable=True,
@@ -319,7 +328,7 @@ class FNMinimi(MachineGun):
                          capacity=100,
                          range_falloff=.25,
                          base_damage=13,
-                         name="FN Minimi",
+                         name=self.Name,
                          weightlb=15.1)
 
 
@@ -338,8 +347,7 @@ class Shotgun(Firearm):
 
 
 class MeleeWeapon(Weapon):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class BladedWeapon(MeleeWeapon):
@@ -357,13 +365,11 @@ class BladedWeapon(MeleeWeapon):
 
 
 class Knife(BladedWeapon):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class Machete(BladedWeapon):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class BluntWeapon(MeleeWeapon):
@@ -377,5 +383,9 @@ class BluntWeapon(MeleeWeapon):
 
 
 class Hammer(BluntWeapon):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
+
+
+ImplementedWeaponsList: list = FullyImplemented.__subclasses__()
+
+ImplementedWeaponsDict: dict = {cls.Name: cls for cls in FullyImplemented.__subclasses__()}

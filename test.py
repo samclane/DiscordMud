@@ -109,3 +109,8 @@ class WeaponsTest(unittest.TestCase):
         self.assertEqual(aps.Action, FiringAction.FullyAutomatic)
         aps.toggleAction()
         self.assertEqual(aps.Action, FiringAction.SemiAutomatic)
+
+        print("")
+        print(ImplementedWeaponsList)
+        print("---")
+        print(ImplementedWeaponsDict)
