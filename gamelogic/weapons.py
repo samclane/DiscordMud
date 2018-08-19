@@ -389,3 +389,27 @@ class Hammer(BluntWeapon):
 ImplementedWeaponsList: list = FullyImplemented.__subclasses__()
 
 ImplementedWeaponsDict: dict = {cls.Name: cls for cls in FullyImplemented.__subclasses__()}
+
+"""
+Here are my fancy regex's, because I don't want to waste them:
+
+Match:
+    class (\w*)\((\w*), FullyImplemented\):
+    .*
+    \s*(.*)
+    .*
+    \s*Name: str \= \"(.*)\"
+    
+    \s*def \_\_init\_\_\(self\):
+    \s*super\(\)\.\_\_init\_\_\(caliber\=(.*),
+    \s*action\=(.*),
+    \s*capacity\=(.*),
+    \s*range_falloff\=(.*),
+    \s*base_damage\=(.*),
+    \s*name\=(.*),
+    \s*weightlb\=(.*)\)\s
+    
+Replace: 
+    $1 = $2\(caliber\=$5, action\=$6, capacity\=$7, range_falloff\=$8, base\_damage\=$9, name\=\"$4\", weightlb\=$11\)\n
+
+"""

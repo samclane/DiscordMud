@@ -81,6 +81,22 @@ class EquipmentSet:
             self.OffHand.Name
         )
 
+    @property
+    def ArmorSet(self) -> [Armor]:
+        armorlist = [self.Head,
+                     self.Chest,
+                     self.Legs,
+                     self.Feet]
+        if hasattr(self.MainHand, 'ArmorCount'):
+            armorlist.append(self.MainHand)
+        if hasattr(self.OffHand, 'ArmorCount'):
+            armorlist.append(self.OffHand)
+        return armorlist
+
+    @property
+    def ArmorCount(self) -> int:
+        return sum([armor.ArmorCount for armor in self.ArmorSet])
+
 
 class Store:
     Inventory: [Equipment]

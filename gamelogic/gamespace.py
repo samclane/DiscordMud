@@ -1,5 +1,6 @@
 import random
 from itertools import product
+from math import sqrt
 
 import numpy
 from noise import pnoise3
@@ -57,7 +58,7 @@ class Space:
     def __eq__(self, other):
         return self.X == other.X and self.Y == other.Y
 
-    def __add__(self, other):
+    def __add__(self, other) -> 'Space':
         if isinstance(other, Space):
             return Space(self.X + other.X, self.Y + other.Y, other.Terrain)
         else:
@@ -67,12 +68,18 @@ class Space:
         yield self.X
         yield self.Y
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> int:
         if item == 0:
             return self.X
         if item == 1:
             return self.Y
         raise ValueError("Item should be either 0 or 1")
+
+    def distance(self, other) -> float:
+        if isinstance(other, Space):
+            return sqrt(abs(self.X - other.X) ** 2 + abs(self.Y - other.Y) ** 2)
+        else:
+            return sqrt(abs(self.X - other[0]) ** 2 + abs(self.Y - other[1]) ** 2)
 
 
 class IndustryType:

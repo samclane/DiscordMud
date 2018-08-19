@@ -1,4 +1,4 @@
-from gamelogic import items, gamespace
+from gamelogic import items, gamespace, weapons
 
 
 class BodyType:
@@ -16,7 +16,7 @@ class Actor:
         self.HitPoints = hp
         self.Name = name
         self.BodyType = body_type
-        self.Location = None
+        self.Location: gamespace.Space = None
         self.FOV_Default = 1
         self.TimeLastMoved = 0
 
@@ -31,6 +31,10 @@ class Actor:
             if isinstance(map_space, gamespace.Wilds):
                 map_space.runEvent(pc=self)
             return True
+
+    @property
+    def isDead(self) -> bool:
+        return self.HitPoints <= 0
 
 
 class NPC(Actor):
@@ -49,9 +53,9 @@ class Enemy(NPC):
 
 
 class PlayerClass:
-    def __init__(self, name=None):
+    def __init__(self, name=None, hitpoints_max=1):
         self.Name: str = name
-        self.HitPointsMaxBase = 1
+        self.HitPointsMaxBase = hitpoints_max
 
     def __str__(self):
         return self.Name
@@ -61,9 +65,8 @@ class WandererClass(PlayerClass):
     """ Default player class with nothing special. """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, hitpoints_max=50, **kwargs)
         self.Name = "Wanderer"
-        self.HitPointsMaxBase = 50
 
 
 class PlayerCharacter(Actor):
@@ -80,3 +83,33 @@ class PlayerCharacter(Actor):
         self.FOV: int = self.FOV_Default
         self.Inventory: [items.Equipment] = []
         self.Currency: int = 0
+
+    @property
+    def weapon(self):
+        w = self.EquipmentSet.MainHand
+        if not isinstance(w, weapons.Weapon):
+            return None
+        else:
+            return w
+
+    @property
+    def hasWeaponEquiped(self):
+        return self.weapon is not None
+
+    def attack(self, other: 'PlayerCharacter') -> bool:
+        """ Returns the attack's success """
+        if not self.hasWeaponEquiped:
+            raise Exception("PlayerCharacter({}) doesn't have weapon equipped.".format(self.Name))
+        distance = self.Location.distance(other.Location)
+        if distance > 0:
+            if not isinstance(self.weapon, weapons.RangedWeapon):
+                return False
+            damage = self.weapon.calcDamage(distance)
+        else:
+            damage = self.weapon.damage
+        other.take_damage(damage)
+        return True
+
+    def take_damage(self, damage: int):
+        damage -= self.EquipmentSet.ArmorCount
+        self.HitPoints -= damage  # TODO Finish this

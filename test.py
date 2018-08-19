@@ -15,11 +15,10 @@ class PlayerTest(unittest.TestCase):
     def test_player_object(self):
         player = PlayerCharacter(None, None)
         player.Name = "Algor"
-        player.Class = WandererClass
-        player.HitPoints = 100
+        player.Class = WandererClass()
         self.assertEqual(player.Name, "Algor")
-        self.assertEqual(player.Class, WandererClass)
-        self.assertEqual(player.HitPoints, 100)
+        self.assertIsInstance(player.Class, WandererClass)
+        self.assertEqual(player.HitPoints, WandererClass().HitPointsMaxBase)
 
     def test_equipment(self):
         es = EquipmentSet()
@@ -40,6 +39,16 @@ class PlayerTest(unittest.TestCase):
         w.addWilds(i)
         self.assertIn(i, w.Wilds)
 
+    def test_distance(self):
+        s1 = Space(0, 0)
+        s2 = Space(3, 4)
+        d12 = s1.distance(s2)
+        self.assertEqual(d12, 5)
+        s3 = Space(1, 2)
+        s4 = Space(4, 6)
+        d34 = s3.distance(s4)
+        self.assertEqual(d34, 5)
+
     def test_run_event(self):
         w = World("Testworld", 50, 50)
         i = Wilds(2, 2, 'Hidden Forrest')
@@ -55,6 +64,11 @@ class PlayerTest(unittest.TestCase):
         player.Class = WandererClass
         player.HitPoints = 100
         i.runEvent(player)
+
+    def test_combat(self):
+        p1 = PlayerCharacter(None, None, hp=100, name='p1')
+        p2 = PlayerCharacter(None, None, hp=100, name='p2')
+
 
 
 class WeaponsTest(unittest.TestCase):
