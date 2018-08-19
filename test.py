@@ -1,4 +1,5 @@
 import unittest
+from builtins import property
 
 from gamelogic.actors import *
 from gamelogic.events import *
@@ -66,8 +67,28 @@ class PlayerTest(unittest.TestCase):
         i.runEvent(player)
 
     def test_combat(self):
-        p1 = PlayerCharacter(None, None, hp=100, name='p1')
-        p2 = PlayerCharacter(None, None, hp=100, name='p2')
+        w = World("Testworld", 50, 50)
+        t = Town(0, 0, "Testville", 123, 1, SandTerrain())
+        w.addTown(t, True)
+        p1 = PlayerCharacter(None, w, hp=100, name='p1')
+        p2 = PlayerCharacter(None, w, hp=100, name='p2')
+        w.addActor(p1)
+        w.addActor(p2)
+        self.assertEqual(p1.Location.distance(p2.Location), 0)
+        p1.attemptMove((3, 4))
+        self.assertEqual(p1.Location.distance(p2.Location), 5)
+        self.assertEqual(p1.Location, (3, 4))
+        ppsh41 = PPSh41()
+        p1.equip(ppsh41)
+        ak = AK47()
+        p2.equip(ak)
+        self.assertEqual(p1.EquipmentSet.MainHand, ppsh41)
+        self.assertEqual(p1.EquipmentSet.OffHand, ppsh41)
+        self.assertEqual(p2.EquipmentSet.MainHand, ak)
+        self.assertEqual(p2.EquipmentSet.OffHand, ak)
+        p1.attack(p2)
+        print(p2.HitPoints, p2.HitPointsMax)
+
 
 
 

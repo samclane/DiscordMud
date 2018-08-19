@@ -56,7 +56,10 @@ class Space:
         return str((self.X, self.Y, self.Terrain))
 
     def __eq__(self, other):
-        return self.X == other.X and self.Y == other.Y
+        if isinstance(other, Space):
+            return self.X == other.X and self.Y == other.Y
+        else:
+            return self.X == other[0] and self.Y == other[1]
 
     def __add__(self, other) -> 'Space':
         if isinstance(other, Space):

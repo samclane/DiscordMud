@@ -7,12 +7,16 @@ class Equipment:
         self.Name = name
         self.WeightLb = weightlb
         self.BaseValue = base_value
+        self.isEquipped = False
 
     def __str__(self):
         return self.Name
 
-    def onEquip(self):
-        pass
+    def onEquip(self, player_character):
+        self.isEquipped = True
+
+    def onUnequip(self, player_character):
+        self.isEquipped = False
 
 
 class Armor(Equipment):
@@ -27,27 +31,27 @@ class Armor(Equipment):
 
 
 class HeadArmor(Armor):
-    Type: str = "Head"
+    Name: str = "Head"
 
 
 class ChestArmor(Armor):
-    Type: str = "Chest"
+    Name: str = "Chest"
 
 
 class LegArmor(Armor):
-    Type: str = "Legs"
+    Name: str = "Legs"
 
 
 class FootArmor(Armor):
-    Type: str = "Feet"
+    Name: str = "Feet"
 
 
 class MainHandEquipment(Equipment):
-    Type: str = "Main Hand"
+    Name: str = "Main Hand"
 
 
 class OffHandEquipment(Equipment):
-    Type: str = "Off Hand"
+    Name: str = "Off Hand"
 
 
 class EquipmentSet:
@@ -81,6 +85,14 @@ class EquipmentSet:
             self.OffHand.Name
         )
 
+    def __iter__(self):
+        yield self.Head
+        yield self.Chest
+        yield self.Legs
+        yield self.Feet
+        yield self.MainHand
+        yield self.OffHand
+
     @property
     def ArmorSet(self) -> [Armor]:
         armorlist = [self.Head,
@@ -96,6 +108,39 @@ class EquipmentSet:
     @property
     def ArmorCount(self) -> int:
         return sum([armor.ArmorCount for armor in self.ArmorSet])
+
+    def equip(self, equipment):
+        if isinstance(equipment, HeadArmor):
+            self.Head = equipment
+        if isinstance(equipment, ChestArmor):
+            self.Chest = equipment
+        if isinstance(equipment, LegArmor):
+            self.Legs = equipment
+        if isinstance(equipment, FootArmor):
+            self.Feet = equipment
+        if isinstance(equipment, MainHandEquipment):
+            self.MainHand = equipment
+        if isinstance(equipment, OffHandEquipment):
+            self.OffHand = equipment
+        else:
+            raise ValueError("Equipment was not of recognized type.")
+
+    def unequip(self, equipment):
+        if isinstance(equipment, HeadArmor):
+            self.Head = HeadArmor()
+        if isinstance(equipment, ChestArmor):
+            self.Chest = ChestArmor()
+        if isinstance(equipment, LegArmor):
+            self.Legs = LegArmor()
+        if isinstance(equipment, FootArmor):
+            self.Feet = FootArmor()
+        if isinstance(equipment, MainHandEquipment):
+            self.MainHand = MainHandEquipment()
+        if isinstance(equipment, OffHandEquipment):
+            self.OffHand = OffHandEquipment()
+        else:
+            raise ValueError("Equipment was not of recognized type.")
+
 
 
 class Store:

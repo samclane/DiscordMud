@@ -96,6 +96,14 @@ class PlayerCharacter(Actor):
     def hasWeaponEquiped(self):
         return self.weapon is not None
 
+    def equip(self, equipment):
+        self.EquipmentSet.equip(equipment)
+        equipment.onEquip(self)
+
+    def unequip(self, equipment):
+        self.EquipmentSet.unequip(equipment)
+        equipment.onUnequip(self)
+
     def attack(self, other: 'PlayerCharacter') -> bool:
         """ Returns the attack's success """
         if not self.hasWeaponEquiped:

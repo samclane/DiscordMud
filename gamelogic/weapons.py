@@ -1,4 +1,4 @@
-from gamelogic.items import Equipment
+from gamelogic.items import Equipment, MainHandEquipment, OffHandEquipment
 
 
 class ProjectileType:
@@ -144,7 +144,7 @@ class FullyImplemented(Weapon):
     pass
 
 
-class Pistol(Firearm):
+class Pistol(Firearm, MainHandEquipment):
     pass
 
 
@@ -196,7 +196,7 @@ class APS(Pistol, SelectiveFire, FullyImplemented):
                          weightlb=2.69)
 
 
-class SMG(Firearm):
+class SMG(Firearm, MainHandEquipment, OffHandEquipment):
     pass
 
 
@@ -232,7 +232,7 @@ class OwenSMG(SMG, FullyImplemented):
                          weightlb=9.33)
 
 
-class Rifle(Firearm):
+class Rifle(Firearm, MainHandEquipment, OffHandEquipment):
     pass
 
 
@@ -287,7 +287,7 @@ class Jezail(Rifle, FullyImplemented):
     # TODO Give 2x dmg bonus if PlayerCharacter is on a mountain and target is not
 
 
-class MachineGun(Firearm):
+class MachineGun(Firearm, MainHandEquipment, OffHandEquipment):
 
     def __init__(self, mountable: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -332,7 +332,7 @@ class FNMinimi(MachineGun, FullyImplemented):
                          weightlb=15.1)
 
 
-class Shotgun(Firearm):
+class Shotgun(Firearm, MainHandEquipment, OffHandEquipment):
     PelletCount: int
 
     def __init__(self, pellet_count: int = 2, *args, **kwargs):
@@ -364,11 +364,11 @@ class BladedWeapon(MeleeWeapon):
         self.BleedFactor = bleed_factor
 
 
-class Knife(BladedWeapon):
+class Knife(BladedWeapon, MainHandEquipment):
     pass
 
 
-class Machete(BladedWeapon):
+class Machete(BladedWeapon, MainHandEquipment):
     pass
 
 
@@ -382,7 +382,7 @@ class BluntWeapon(MeleeWeapon):
         self.CrippleChance = cripple_chance
 
 
-class Hammer(BluntWeapon):
+class Hammer(BluntWeapon, MainHandEquipment):
     pass
 
 
