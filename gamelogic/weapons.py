@@ -60,7 +60,8 @@ class RangedWeapon(Weapon):
         self._rangeFalloff = range_falloff
 
     def calcDamage(self, distance: int) -> int:
-        damage = self.damage * (distance * (1 - self.RangeFalloff))
+        damage = self.damage * ((1. - self.RangeFalloff) ** distance)
+        print(damage)
         return int(damage)
 
     @property

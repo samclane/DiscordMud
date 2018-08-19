@@ -182,7 +182,7 @@ class World:
                     x].Terrain.isWalkable:
                     self.Map[y][x] = Space(x, y, MountainTerrain())
 
-    def isSpaceValid(self, space: (int, int)) -> bool:
+    def isSpaceValid(self, space: Space) -> bool:
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
 
     def getAdjacentSpaces(self, space, sq_range: int = 1) -> [Space]:

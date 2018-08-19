@@ -75,9 +75,9 @@ class PlayerTest(unittest.TestCase):
         w.addActor(p1)
         w.addActor(p2)
         self.assertEqual(p1.Location.distance(p2.Location), 0)
-        p1.attemptMove((3, 4))
+        if not p1.attemptMove((3, 4)):
+            self.fail("P1 couldn't move for some reason.")
         self.assertEqual(p1.Location.distance(p2.Location), 5)
-        self.assertEqual(p1.Location, (3, 4))
         ppsh41 = PPSh41()
         p1.equip(ppsh41)
         ak = AK47()
@@ -86,6 +86,10 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(p1.EquipmentSet.OffHand, ppsh41)
         self.assertEqual(p2.EquipmentSet.MainHand, ak)
         self.assertEqual(p2.EquipmentSet.OffHand, ak)
+        p1.attack(p2)
+        print(p2.HitPoints, p2.HitPointsMax)
+        if not p1.attemptMove((-2, -3)):
+            self.fail("P1 couldn't move for some reason")
         p1.attack(p2)
         print(p2.HitPoints, p2.HitPointsMax)
 
