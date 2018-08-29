@@ -1,5 +1,4 @@
 import unittest
-from builtins import property
 
 from gamelogic.actors import *
 from gamelogic.events import *
@@ -92,8 +91,6 @@ class PlayerTest(unittest.TestCase):
             self.fail("P1 couldn't move for some reason")
         p1.attack(p2)
         print(p2.HitPoints, p2.HitPointsMax)
-
-
 
 
 class WeaponsTest(unittest.TestCase):

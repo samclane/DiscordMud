@@ -114,7 +114,7 @@ class PlayerCharacter(Actor):
                 return False
             damage = self.weapon.calcDamage(distance)
         else:
-            damage = self.weapon.damage
+            damage = self.weapon.Damage
         other.take_damage(damage)
         return True
 

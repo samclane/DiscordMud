@@ -151,8 +151,16 @@ class PlayerInterface(QObject):
         pc = self.players[member.id]
         loc = pc.Location
         town = self.world.Map[loc.Y][loc.X]
+        msg = ""
+        for idx, item in enumerate(set(town.Store.Inventory)):
+            msg += "{}\t{}\t{}\n{}\n".format(idx,
+                                             item.Name,
+                                             town.Store.getPrice(item),
+                                             town.Store.Inventory.count(item))
+        if len(msg) == 0:
+            msg += "There are no items in the store at the moment. Please try again later."
         if ctx.invoked_subcommand is None:
-            await self.bot.say(town.Store.formatInventory())
+            await self.bot.say(msg)
 
     @store.command(pass_context=True)
     async def buy(self, ctx, index: int = None):

@@ -243,8 +243,9 @@ class WorldView(QGraphicsObject):
 
         # Draw PCs
         for player in self.world.Players:
-            point = self.gridToPix(player.Location.X, player.Location.Y)
-            painter.drawPixmap(point, self.spritemap["player"])
+            if player.Location:
+                point = self.gridToPix(player.Location.X, player.Location.Y)
+                painter.drawPixmap(point, self.spritemap["player"])
 
         # Draw pointers
         if self.parent.pointerMode != PointerMode.Normal:

@@ -35,7 +35,7 @@ class Weapon(Equipment):
         self._baseDamage = base_damage
 
     @property
-    def damage(self):
+    def Damage(self):
         return self._baseDamage
 
 
@@ -60,7 +60,7 @@ class RangedWeapon(Weapon):
         self._rangeFalloff = range_falloff
 
     def calcDamage(self, distance: int) -> int:
-        damage = self.damage * ((1. - self.RangeFalloff) ** distance)
+        damage = self.Damage * ((1. - self.RangeFalloff) ** distance)
         print(damage)
         return int(damage)
 
@@ -124,8 +124,8 @@ class Firearm(ProjectileWeapon):
         self._currentCapacity -= self.BurstSize
 
     @property
-    def damage(self):
-        return super().damage * self.BurstSize
+    def Damage(self):
+        return super().Damage * self.BurstSize
 
     @property
     def Action(self):
@@ -343,8 +343,8 @@ class Shotgun(Firearm, MainHandEquipment, OffHandEquipment):
         self.PelletCount = pellet_count
 
     @property
-    def damage(self):
-        return super().damage * self.PelletCount
+    def Damage(self):
+        return super().Damage * self.PelletCount
 
 
 class MeleeWeapon(Weapon):
@@ -411,6 +411,6 @@ Match:
     \s*weightlb\=(.*)\)\s
     
 Replace: 
-    $1 = $2\(caliber\=$5, action\=$6, capacity\=$7, range_falloff\=$8, base\_damage\=$9, name\=\"$4\", weightlb\=$11\)\n
+    $1 = $2\(caliber\=$5, action\=$6, capacity\=$7, range_falloff\=$8, base\_Damage\=$9, name\=\"$4\", weightlb\=$11\)\n
 
 """

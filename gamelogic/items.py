@@ -142,7 +142,6 @@ class EquipmentSet:
             raise ValueError("Equipment was not of recognized type.")
 
 
-
 class Store:
     Inventory: [Equipment]
     PriceRatio: float  # Lower means better buy/sell prices, higher means worse
@@ -160,19 +159,10 @@ class Store:
         if player_character.Currency < price:
             return False
         self.Inventory.remove(item)
-        player_character -= price
+        player_character.Currency -= price
+        player_character.Inventory.add(item)
         return True
 
     def buyItem(self, item: Equipment) -> float:
         self.Inventory.append(item)
         return item.BaseValue / self.PriceRatio
-
-    def formatInventory(self) -> str:
-        msg = ""
-        for idx, item in enumerate(self.Inventory):
-            msg += "{}\t{}\t{}\n".format(idx,
-                                         item.Name,
-                                         item.BaseValue * self.PriceRatio)
-        if len(self.Inventory) == 0:
-            msg += "There are no items in the store at the moment. Please try again later."
-        return msg

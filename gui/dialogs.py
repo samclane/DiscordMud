@@ -1,11 +1,11 @@
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
-    QVBoxLayout, QCheckBox, QErrorMessage
+    QVBoxLayout, QCheckBox, QErrorMessage, QListView, QTreeView
 
-from gamelogic import gamespace
+from gamelogic import gamespace, weapons
 
 
 class AddWorldDialog(QDialog):
@@ -100,6 +100,18 @@ class AddTownDialog(QDialog):
             self.posXEdit.setValue(position[0])
             self.posYEdit.setValue(position[1])
 
+        self.storeList = QTreeView(self)
+        self.storeModel = QStandardItemModel(0, 3, self)
+        headers = ["Name", "Price", "Count"]
+        for idx, h in enumerate(headers):
+            self.storeModel.setHeaderData(idx, Qt.Horizontal, h)
+        for weapon in weapons.ImplementedWeaponsList:
+            self.storeModel.insertRow(0)
+            self.storeModel.setData(self.storeModel.index(0, 0), weapon.Name)
+            self.storeModel.setData(self.storeModel.index(0, 1), weapon().BaseValue)
+            self.storeModel.setData(self.storeModel.index(0, 2), 0)
+        self.storeList.setModel(self.storeModel)
+
         self.startingCheck = QCheckBox("Starting town?", self)
         if parent._world.StartingTown is None:  # Force first town to be starting town
             self.startingCheck.toggle()
@@ -139,6 +151,7 @@ class AddTownDialog(QDialog):
         mainLayout.addLayout(popLayout)
         mainLayout.addLayout(industLayout)
         mainLayout.addLayout(posLayout)
+        mainLayout.addWidget(self.storeList)
         mainLayout.addWidget(self.startingCheck)
         mainLayout.addWidget(buttonBox)
 
@@ -148,6 +161,7 @@ class AddTownDialog(QDialog):
         self.isStartingTown = False
         okButton.clicked.connect(self.onOk)
         cancelButton.clicked.connect(self.reject)
+        # self.storeList.doubleClicked.connect(self.countEdit)
 
     def onOk(self, event):
         if not self.space.Terrain.isWalkable and self.startingCheck.isChecked():
@@ -164,7 +178,6 @@ class AddTownDialog(QDialog):
                                              self.space.Terrain)
             self.isStartingTown = self.startingCheck.isChecked()
             self.accept()
-
 
 class AddWildsDialog(QDialog):
     def __init__(self, parent=None, position=None):
