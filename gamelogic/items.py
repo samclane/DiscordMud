@@ -146,8 +146,8 @@ class Store:
     Inventory: [Equipment]
     PriceRatio: float  # Lower means better buy/sell prices, higher means worse
 
-    def __init__(self):
-        self.Inventory = []
+    def __init__(self, inventory=None):
+        self.Inventory = inventory if inventory else []
         self.PriceRatio = 1.0
 
     def getPrice(self, item: Equipment) -> float:

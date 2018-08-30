@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
     QVBoxLayout, QCheckBox, QErrorMessage, QListView, QTreeView
 
-from gamelogic import gamespace, weapons
+from gamelogic import gamespace, weapons, items
 
 
 class AddWorldDialog(QDialog):
@@ -100,7 +100,7 @@ class AddTownDialog(QDialog):
             self.posXEdit.setValue(position[0])
             self.posYEdit.setValue(position[1])
 
-        self.storeList = QTreeView(self)
+        self.storeTree = QTreeView(self)
         self.storeModel = QStandardItemModel(0, 3, self)
         headers = ["Name", "Price", "Count"]
         for idx, h in enumerate(headers):
@@ -110,7 +110,7 @@ class AddTownDialog(QDialog):
             self.storeModel.setData(self.storeModel.index(0, 0), weapon.Name)
             self.storeModel.setData(self.storeModel.index(0, 1), weapon().BaseValue)
             self.storeModel.setData(self.storeModel.index(0, 2), 0)
-        self.storeList.setModel(self.storeModel)
+        self.storeTree.setModel(self.storeModel)
 
         self.startingCheck = QCheckBox("Starting town?", self)
         if parent._world.StartingTown is None:  # Force first town to be starting town
@@ -151,7 +151,7 @@ class AddTownDialog(QDialog):
         mainLayout.addLayout(popLayout)
         mainLayout.addLayout(industLayout)
         mainLayout.addLayout(posLayout)
-        mainLayout.addWidget(self.storeList)
+        mainLayout.addWidget(self.storeTree)
         mainLayout.addWidget(self.startingCheck)
         mainLayout.addWidget(buttonBox)
 
@@ -161,7 +161,15 @@ class AddTownDialog(QDialog):
         self.isStartingTown = False
         okButton.clicked.connect(self.onOk)
         cancelButton.clicked.connect(self.reject)
-        # self.storeList.doubleClicked.connect(self.countEdit)
+
+    def getStoreFromTree(self):
+        inventory = []
+        for r in range(len(weapons.ImplementedWeaponsList)):
+            name, price, count = (self.storeModel.data(self.storeModel.index(r, c)) for c in
+                                  range(self.storeModel.columnCount()))
+            for _ in range(count):
+                inventory.append(weapons.ImplementedWeaponsDict[name]())
+        return items.Store(inventory=inventory)
 
     def onOk(self, event):
         if not self.space.Terrain.isWalkable and self.startingCheck.isChecked():
@@ -175,9 +183,11 @@ class AddTownDialog(QDialog):
                                              self.nameEdit.text(),
                                              int(self.popEdit.text()),
                                              self.industList[self.industCombo.currentText()],
-                                             self.space.Terrain)
+                                             self.space.Terrain,
+                                             store=self.getStoreFromTree())
             self.isStartingTown = self.startingCheck.isChecked()
             self.accept()
+
 
 class AddWildsDialog(QDialog):
     def __init__(self, parent=None, position=None):

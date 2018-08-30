@@ -110,13 +110,13 @@ class Town(Space):
     Population: int
     Industry: IndustryType
 
-    def __init__(self, x, y, name, population, industry=None, terrain=None):
+    def __init__(self, x, y, name, population, industry=None, terrain=None, store=None):
         super(Town, self).__init__(x, y)
         self.Name = name
         self.Population = population
         self.Industry = industry
         self.Terrain = terrain
-        self.Store = items.Store()
+        self.Store = store if store else items.Store()
         self.Underwater = isinstance(self.Terrain, WaterTerrain)
 
     def innEvent(self, pc) -> str:

@@ -33,10 +33,17 @@ class Weapon(Equipment):
         if base_damage < 0:
             raise ValueError("base_damage must be 0 or greater.")
         self._baseDamage = base_damage
+        self.BaseValue = 10 * self._baseDamage
 
     @property
     def Damage(self):
         return self._baseDamage
+
+    def __eq__(self, other):
+        return self.Name == other.Name
+
+    def __hash__(self):
+        return hash(self.Name)
 
 
 class RangedWeapon(Weapon):
@@ -58,6 +65,7 @@ class RangedWeapon(Weapon):
         if not (0 <= range_falloff <= 1):
             raise ValueError("RangeFalloff must be between 0 and 1")
         self._rangeFalloff = range_falloff
+        self.BaseValue = self.BaseValue + (50 * range_) * (1 - range_falloff)
 
     def calcDamage(self, distance: int) -> int:
         damage = self.Damage * ((1. - self.RangeFalloff) ** distance)
