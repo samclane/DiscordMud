@@ -1,9 +1,9 @@
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QStandardItemModel
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
-    QVBoxLayout, QCheckBox, QErrorMessage, QListView, QTreeView
+    QVBoxLayout, QCheckBox, QErrorMessage, QTreeView
 
 from gamelogic import gamespace, weapons, items
 
@@ -101,6 +101,8 @@ class AddTownDialog(QDialog):
             self.posYEdit.setValue(position[1])
 
         self.storeTree = QTreeView(self)
+        # self.storeTree.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.storeTree.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.storeModel = QStandardItemModel(0, 3, self)
         headers = ["Name", "Price", "Count"]
         for idx, h in enumerate(headers):
@@ -162,7 +164,10 @@ class AddTownDialog(QDialog):
         okButton.clicked.connect(self.onOk)
         cancelButton.clicked.connect(self.reject)
 
-    def getStoreFromTree(self):
+        for idx in range(len(headers)):
+            self.storeTree.resizeColumnToContents(idx)
+
+    def buildStoreFromTree(self):
         inventory = []
         for r in range(len(weapons.ImplementedWeaponsList)):
             name, price, count = (self.storeModel.data(self.storeModel.index(r, c)) for c in
@@ -184,7 +189,7 @@ class AddTownDialog(QDialog):
                                              int(self.popEdit.text()),
                                              self.industList[self.industCombo.currentText()],
                                              self.space.Terrain,
-                                             store=self.getStoreFromTree())
+                                             store=self.buildStoreFromTree())
             self.isStartingTown = self.startingCheck.isChecked()
             self.accept()
 
