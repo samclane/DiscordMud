@@ -107,8 +107,11 @@ class PlayerInterface(QObject):
             return
         if ctx.invoked_subcommand is None:
             msg = "{}'s inventory:\n".format(pc.Name)
-            for idx, e in enumerate(pc.Inventory):
-                msg += "\t#{}\t{}\n".format(idx, e)
+            if len(pc.Inventory) == 0:
+                msg += "\t(Empty)"
+            else:
+                for idx, e in enumerate(pc.Inventory):
+                    msg += "\t#{}\t{}\n".format(idx, e)
             await self.bot.say(msg)
 
     # Inventory Management
@@ -235,6 +238,19 @@ class PlayerInterface(QObject):
             await self.bot.say("Successfully made purchase.")
         else:
             await self.bot.say("Not enough money.")
+
+    @store.command(pass_context=True)
+    async def sell(self, ctx, index: int = None):
+        if index is None:
+            await self.bot.say("Please specify an item index.")
+            return
+        member = ctx.message.author
+        player: actors.PlayerCharacter = self.players[member.id]
+        loc = player.Location
+        town = self.world.Map[loc.Y][loc.X]
+        item = player.Inventory[index]
+        price = town.Store.buyItem(item, player)
+        await self.bot.say("Successfully sold {} for ${}".format(item.Name, price))
 
 
 # a modified version of the 'cog' setup

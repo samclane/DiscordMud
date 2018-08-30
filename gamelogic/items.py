@@ -163,6 +163,9 @@ class Store:
         player_character.Inventory.append(item)
         return True
 
-    def buyItem(self, item: Equipment) -> float:
+    def buyItem(self, item: Equipment, player_character) -> float:
         self.Inventory.append(item)
-        return item.BaseValue / self.PriceRatio
+        price = item.BaseValue / self.PriceRatio
+        player_character.Currency += price
+        player_character.Inventory.remove(item)
+        return price

@@ -45,6 +45,9 @@ class Weapon(Equipment):
     def __hash__(self):
         return hash(self.Name)
 
+    def __str__(self):
+        return "{}\t{}dmg".format(self.Name, self.Damage)
+
 
 class RangedWeapon(Weapon):
     Range: int
@@ -127,6 +130,7 @@ class Firearm(ProjectileWeapon):
         if self.isSingleShot:
             self._action = FiringAction.SingleShot
         self.BurstSize = burst_size
+        self.BaseValue += (10 * self._action)  # Better firing action => Costs more
 
     def fire(self):
         self._currentCapacity -= self.BurstSize
