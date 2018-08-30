@@ -74,7 +74,8 @@ if __name__ == "__main__":
     pi.moved.connect(main_window.update)
     pi.moved.connect(lambda pc: main_window.logger.info("{} has moved to {}".format(pc.Name, pc.Location)))
     pi.requestScreenshot.connect(
-        lambda pc: main_window.worldFrame.saveSubimage(world.getAdjacentSpaces(pc.Location, pc.FOV_Default)))
+        lambda pc: main_window.worldFrame.saveSubimage(world.getAdjacentSpaces(pc.Location, pc.FOV_Default),
+                                                       "capture-{}.png".format(pc.Name)))
 
     # Begin application, and exit when it returns
     sys.exit(app.exec_())

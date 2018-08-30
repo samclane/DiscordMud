@@ -92,7 +92,7 @@ class PlayerInterface(QObject):
             message += 'You are also in the wilds, nicknamed ' + self.world.Map[l.Y][l.X].Name + '.'
         self.requestScreenshot.emit(pc)
         time.sleep(.05)  # TODO Make this not blocking
-        with open(r"./capture.png", 'rb') as f:
+        with open(r"./capture-{}.png".format(pc.Name), 'rb') as f:
             await self.bot.send_file(ctx.message.author, f, content=message)
 
     @commands.group("inventory", pass_context=True, invoke_without_command=True)
@@ -111,6 +111,8 @@ class PlayerInterface(QObject):
                 msg += "\t#{}\t{}\n".format(idx, e)
             await self.bot.say(msg)
 
+    # Inventory Management
+
     @inventory.command(pass_context=True)
     async def equip(self, ctx: discord.ext.commands.Context, index):
         member = ctx.message.author
@@ -125,6 +127,21 @@ class PlayerInterface(QObject):
             await self.bot.say("Invalid index")
         else:
             await self.bot.say("{} has been equipped".format(item.Name))
+
+    @inventory.command(pass_context=True)
+    async def unequip(self, ctx: discord.ext.commands.Context, index):
+        member = ctx.message.author
+        if not self.check_member(member):
+            await self.bot.say("You're not registered yet!")
+            return
+        pc = self.players[member.id]
+        try:
+            item = pc.Inventory[int(index)]
+            pc.unequip(item)
+        except IndexError:
+            await self.bot.say("Invalid index")
+        else:
+            await self.bot.say("{} has been unequipped".format(item.Name))
 
     # Player Movement
 

@@ -160,7 +160,7 @@ class WorldFrame(QGraphicsView):
         subBoundingRect = QRectF(topLeftPix, bottomRightPix)
         return subBoundingRect
 
-    def saveSubimage(self, spaces: [Space]):
+    def saveSubimage(self, spaces: [Space], filename="capture.png"):
         self._scene.clearSelection()
         boundingRect = self.getBoundingSubrectangle(spaces)
         self._scene.setSceneRect(boundingRect)
@@ -170,7 +170,7 @@ class WorldFrame(QGraphicsView):
         painter.setRenderHint(QPainter.Antialiasing)
         self._scene.render(painter)
         painter.end()  # Removing will cause silent crash
-        pix.save("capture.png")
+        pix.save(filename)
 
 
 class WorldView(QGraphicsObject):

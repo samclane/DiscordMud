@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
 
         saveAct = QAction(Icon(self, 'SP_DialogSaveButton'), '&Save World', self)
         saveAct.setStatusTip('Save the world object to a file')
-        saveAct.triggered.connect(lambda e: pickle.dump(self.world, open("world.p", "wb")))
+        saveAct.triggered.connect(self.world.saveAsFile)
 
         exitAct = QAction(Icon(self, 'SP_MessageBoxCritical'), '&Exit', self)
         exitAct.setStatusTip('Exit application')

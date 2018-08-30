@@ -1,3 +1,4 @@
+import pickle
 import random
 from itertools import product
 from math import sqrt
@@ -163,6 +164,9 @@ class World:
         self.Players = []
         self.StartingTown: Town = None
         self.generateMap()
+
+    def saveAsFile(self):
+        pickle.dump(self, open("world.p", "wb"))
 
     def generateMap(self):
         resolution = 0.2 * (
