@@ -82,7 +82,7 @@ class PlayerCharacter(Actor):
         self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()
         self.FOV: int = self.FOV_Default
         self.Inventory: [items.Equipment] = []
-        self.Currency: int = 0
+        self.Currency: int = 1000
 
     @property
     def weapon(self):

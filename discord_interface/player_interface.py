@@ -18,6 +18,8 @@ class PlayerInterface(QObject):
     moved = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
     requestScreenshot = pyqtSignal(actors.PlayerCharacter)
 
+    # Magic Functions
+
     def __init__(self, bot, world, *args, **kwargs):
         self.players = {pc.UserId: pc for pc in world.Players}  # Maps DiscordId -> PlayerCharacter
         self.bot = bot
@@ -30,6 +32,8 @@ class PlayerInterface(QObject):
 
     def check_member(self, member):
         return member.id in self.players.keys()
+
+    # Registration
 
     @commands.command(pass_context=True)
     async def register(self, ctx: discord.ext.commands.context.Context):
@@ -49,6 +53,8 @@ class PlayerInterface(QObject):
         char.Name = response.content
         await self.bot.say("You've been registered, {}!".format((await self.bot.get_user_info(member.id)).name))
         self.addPlayer(member.id, char)
+
+    # Player introspection
 
     @commands.command(pass_context=True)
     async def whoami(self, ctx: discord.ext.commands.context.Context):
@@ -89,6 +95,39 @@ class PlayerInterface(QObject):
         with open(r"./capture.png", 'rb') as f:
             await self.bot.send_file(ctx.message.author, f, content=message)
 
+    @commands.group("inventory", pass_context=True, invoke_without_command=True)
+    async def inventory(self, ctx: discord.ext.commands.Context):
+        member = ctx.message.author
+        if not self.check_member(member):
+            await self.bot.say("You're not registered yet!")
+            return
+        pc = self.players[member.id]
+        if pc.Location is None:
+            await self.bot.say("You haven't spawned into the world yet. Something has gone horribly wrong.")
+            return
+        if ctx.invoked_subcommand is None:
+            msg = "{}'s inventory:\n".format(pc.Name)
+            for idx, e in enumerate(pc.Inventory):
+                msg += "\t#{}\t{}\n".format(idx, e)
+            await self.bot.say(msg)
+
+    @inventory.command(pass_context=True)
+    async def equip(self, ctx: discord.ext.commands.Context, index):
+        member = ctx.message.author
+        if not self.check_member(member):
+            await self.bot.say("You're not registered yet!")
+            return
+        pc = self.players[member.id]
+        try:
+            item = pc.Inventory[int(index)]
+            pc.equip(item)
+        except IndexError:
+            await self.bot.say("Invalid index")
+        else:
+            await self.bot.say("{} has been equipped".format(item.Name))
+
+    # Player Movement
+
     @commands.command(pass_context=True)
     async def go(self, ctx: discord.ext.commands.context.Context, direction: str):
         # Get member and assure they're registered
@@ -113,6 +152,8 @@ class PlayerInterface(QObject):
             pc.TimeLastMoved = time.time()
         else:
             await self.bot.say("Move would put you outside the map!")
+
+    # World interaction
 
     @commands.group(name="town", pass_context=True, invoke_without_command=True)
     async def town(self, ctx):
@@ -144,6 +185,8 @@ class PlayerInterface(QObject):
             await self.bot.say(response_text)
         else:
             await self.bot.say("You're not in a Town, much less an Inn!")
+
+    # Store
 
     @town.group(name="store", pass_context=True, invoke_without_command=True)
     async def store(self, ctx):

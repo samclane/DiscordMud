@@ -160,7 +160,7 @@ class Store:
             return False
         self.Inventory.remove(item)
         player_character.Currency -= price
-        player_character.Inventory.add(item)
+        player_character.Inventory.append(item)
         return True
 
     def buyItem(self, item: Equipment) -> float:
