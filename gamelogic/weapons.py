@@ -39,6 +39,9 @@ class Weapon(Equipment):
     def Damage(self):
         return self._baseDamage
 
+    def onDamage(self):
+        pass
+
     def __eq__(self, other):
         return self.Name == other.Name
 
@@ -72,7 +75,6 @@ class RangedWeapon(Weapon):
 
     def calcDamage(self, distance: int) -> int:
         damage = self.Damage * ((1. - self.RangeFalloff) ** distance)
-        print(damage)
         return int(damage)
 
     @property
@@ -109,6 +111,9 @@ class ProjectileWeapon(RangedWeapon):
     def isEmpty(self) -> bool:
         return self.currentCapacity == 0
 
+    def onDamage(self):
+        self.fire()
+
     def fire(self):
         self._currentCapacity -= 1
 
@@ -142,6 +147,9 @@ class Firearm(ProjectileWeapon):
     @property
     def Action(self):
         return self._action
+
+    def onDamage(self):
+        self.fire()
 
 
 class SelectiveFire(Firearm):

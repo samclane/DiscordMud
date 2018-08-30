@@ -104,20 +104,6 @@ class PlayerCharacter(Actor):
         self.EquipmentSet.unequip(equipment)
         equipment.onUnequip(self)
 
-    def attack(self, other: 'PlayerCharacter') -> bool:
-        """ Returns the attack's success """
-        if not self.hasWeaponEquiped:
-            raise Exception("PlayerCharacter({}) doesn't have weapon equipped.".format(self.Name))
-        distance = self.Location.distance(other.Location)
-        if distance > 0:
-            if not isinstance(self.weapon, weapons.RangedWeapon):
-                return False
-            damage = self.weapon.calcDamage(distance)
-        else:
-            damage = self.weapon.Damage
-        other.take_damage(damage)
-        return True
-
     def take_damage(self, damage: int):
         damage -= self.EquipmentSet.ArmorCount
         self.HitPoints -= damage  # TODO Finish this

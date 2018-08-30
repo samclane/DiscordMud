@@ -8,7 +8,7 @@ import discord
 from PyQt5.QtCore import pyqtSignal, QObject
 from discord.ext import commands
 
-from gamelogic import actors
+from gamelogic import actors, weapons
 
 MOVEMENT_WAIT_TIME = .01  # seconds
 
@@ -50,7 +50,7 @@ class PlayerInterface(QObject):
         char = actors.PlayerCharacter(member.id, parentworld=self.world)
         await self.bot.say('What is the name of your character?')
         response = await self.bot.wait_for_message(timeout=5.0, author=await self.bot.get_user_info(member.id))
-        char.Name = response.content
+        char.Name = response.content[:255].strip('<>@.')
         await self.bot.say("You've been registered, {}!".format((await self.bot.get_user_info(member.id)).name))
         self.addPlayer(member.id, char)
 
@@ -66,10 +66,12 @@ class PlayerInterface(QObject):
         msg = "User: {}\n" \
               "Player Name: {}\n" \
               "Class: {}\n" \
+              "Health: {}\n" \
               "Currency: {}\n" \
               "Equipment: \n{}".format(member.name,
                                        pc.Name,
                                        pc.Class.Name,
+                                       pc.HitPoints,
                                        pc.Currency,
                                        str(pc.EquipmentSet))
         await self.bot.say(msg)
@@ -173,6 +175,34 @@ class PlayerInterface(QObject):
         else:
             await self.bot.say("Move would put you outside the map!")
 
+    @commands.command(pass_context=True)
+    async def attack(self, ctx, direction=None):
+        member = ctx.message.author
+        if not self.check_member(member):
+            return
+        pc = self.players[member.id]
+        if not pc.hasWeaponEquiped:
+            await self.bot.say("You must have a weapon equipped to attack")
+        if direction and not isinstance(pc.weapon, weapons.RangedWeapon):
+            await self.bot.say("You must have a ranged weapon to attack at range.")
+        directions = {
+            'n': (0, -1),
+            's': (0, 1),
+            'e': (1, 0),
+            'w': (-1, 0),
+            'ne': (1, -1),
+            'se': (1, 1),
+            'sw': (-1, 1),
+            'nw': (-1, -1),
+            None: (0, 0)
+        }
+        response = self.world.attack(pc, directions[direction])
+        if response["success"]:
+            await self.bot.say("Dealt {} damage to {}".format(response["damage"],
+                                                              response["target"]))
+        else:
+            await self.bot.say("Attack failed: {}".format(response["fail_reason"]))
+
     # World interaction
 
     @commands.group(name="town", pass_context=True, invoke_without_command=True)
@@ -233,6 +263,8 @@ class PlayerInterface(QObject):
         member = ctx.message.author
         player: actors.PlayerCharacter = self.players[member.id]
         loc = player.Location
+        if loc not in self.world.Towns:
+            await self.bot.say("You're not in a town!")
         town = self.world.Map[loc.Y][loc.X]
         if town.Store.sellItem(index, player):
             await self.bot.say("Successfully made purchase.")

@@ -154,7 +154,7 @@ class Store:
         return item.BaseValue * self.PriceRatio
 
     def sellItem(self, index: int, player_character) -> bool:
-        item = self.Inventory[index]
+        item = [item for item in self.Inventory if isinstance(item, type(list(set(self.Inventory))[index]))][0]
         price = self.getPrice(item)
         if player_character.Currency < price:
             return False

@@ -6,7 +6,7 @@ from math import sqrt
 import numpy
 from noise import pnoise3
 
-from gamelogic import events, actors, items
+from gamelogic import events, actors, items, weapons
 
 
 class Terrain:
@@ -213,3 +213,34 @@ class World:
             self.Players.append(actor)
         elif space and self.isSpaceValid(space):
             actor.Location = space
+
+    def attack(self, player_character: actors.PlayerCharacter, direction: (int, int)):
+        response = {
+            "success": False,
+            "damage": 0,
+            "target": None,
+            "fail_reason": "No targets found in that direction."
+        }
+        loc = player_character.Location
+        dmg = player_character.weapon.Damage
+        while dmg > 0:
+            if isinstance(player_character.weapon, weapons.ProjectileWeapon) and player_character.weapon.isEmpty:
+                response["fail_reason"] = "Your currently equipped weapon is empty!"
+                break
+            targets = [player for player in self.Players if player != player_character and player.Location == loc]
+            if len(targets):
+                target: actors.PlayerCharacter = random.choice(targets)
+                player_character.weapon.onDamage()
+                target.take_damage(dmg)
+                response["success"] = True
+                response["damage"] = dmg
+                response["target"] = target.Name
+                break
+            else:
+                if isinstance(player_character.weapon, weapons.MeleeWeapon):
+                    response["fail_reason"] = "No other players in range of your Melee Weapon."
+                    break
+                loc += direction
+                loc = self.Map[loc.Y][loc.X]
+                dmg = player_character.weapon.calcDamage(player_character.Location.distance(loc))
+        return response
