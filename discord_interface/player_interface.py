@@ -50,8 +50,12 @@ class PlayerInterface(QObject):
         char = actors.PlayerCharacter(member.id, parentworld=self.world)
         await self.bot.say('What is the name of your character?')
         response = await self.bot.wait_for_message(timeout=5.0, author=await self.bot.get_user_info(member.id))
-        char.Name = response.content[:255].strip('<>@.')
-        await self.bot.say("You've been registered, {}!".format((await self.bot.get_user_info(member.id)).name))
+        if response is None:
+            await self.bot.say('Nevermind...')
+            return
+        char.Name = response.content[:255].strip('#<>@.')
+        await self.bot.say("You've been registered, {}! Or should I say {}? Good luck out there, comrade.".format(
+            (await self.bot.get_user_info(member.id)).name, char.Name))
         self.addPlayer(member.id, char)
 
     # Player introspection
@@ -87,11 +91,11 @@ class PlayerInterface(QObject):
             await self.bot.say("You haven't spawned into the world yet. Something has gone horribly wrong.")
             return
         message = "You are at " + str(pc.Location) + '.'
-        l = pc.Location
+        loc = pc.Location
         if pc.Location in self.world.Towns:
-            message += 'You are also in the town ' + self.world.Map[l.Y][l.X].Name + '.'
+            message += 'You are also in the town ' + self.world.Map[loc.Y][loc.X].Name + '.'
         if pc.Location in self.world.Wilds:
-            message += 'You are also in the wilds, nicknamed ' + self.world.Map[l.Y][l.X].Name + '.'
+            message += 'You are also in the wilds, nicknamed ' + self.world.Map[loc.Y][loc.X].Name + '.'
         self.requestScreenshot.emit(pc)
         time.sleep(.05)  # TODO Make this not blocking
         with open(r"./capture-{}.png".format(pc.Name), 'rb') as f:
