@@ -11,6 +11,7 @@ from discord.ext import commands
 from gamelogic import actors, weapons
 
 MOVEMENT_WAIT_TIME = .01  # seconds
+TIMEOUT = 10.0
 
 
 class PlayerInterface(QObject):
@@ -44,14 +45,14 @@ class PlayerInterface(QObject):
             await self.bot.say("You've already registered, dummy!")
             return
         await self.bot.say("Do you want to join the MUD? (say 'yes' to continue)")
-        response = await self.bot.wait_for_message(timeout=5.0, author=member,
+        response = await self.bot.wait_for_message(timeout=TIMEOUT, author=member,
                                                    check=lambda msg: msg.content.lower() == 'yes')
         if response is None:
             await self.bot.say('Nevermind...')
             return
         char = actors.PlayerCharacter(member.id, parentworld=self.world)
         await self.bot.say('What is the name of your character?')
-        response = await self.bot.wait_for_message(timeout=5.0, author=await self.bot.get_user_info(member.id))
+        response = await self.bot.wait_for_message(timeout=TIMEOUT, author=await self.bot.get_user_info(member.id))
         if response is None:
             await self.bot.say('Nevermind...')
             return
