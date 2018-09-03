@@ -16,6 +16,8 @@ MOVEMENT_WAIT_TIME = .01  # seconds
 class PlayerInterface(QObject):
     registered = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
     moved = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
+    attacked = pyqtSignal(actors.PlayerCharacter, actors.PlayerCharacter, int)  # Source, Target, Damage
+    innUsed = pyqtSignal(actors.PlayerCharacter, str)  # PC and Flavor Text
     requestScreenshot = pyqtSignal(actors.PlayerCharacter)
 
     # Magic Functions
@@ -187,8 +189,10 @@ class PlayerInterface(QObject):
         pc = self.players[member.id]
         if not pc.hasWeaponEquiped:
             await self.bot.say("You must have a weapon equipped to attack")
+            return
         if direction and not isinstance(pc.weapon, weapons.RangedWeapon):
             await self.bot.say("You must have a ranged weapon to attack at range.")
+            return
         directions = {
             'n': (0, -1),
             's': (0, 1),
@@ -203,7 +207,8 @@ class PlayerInterface(QObject):
         response = self.world.attack(pc, directions[direction])
         if response["success"]:
             await self.bot.say("Dealt {} damage to {}".format(response["damage"],
-                                                              response["target"]))
+                                                              response["target"].Name))
+            self.attacked.emit(pc, response["target"], response["damage"])
         else:
             await self.bot.say("Attack failed: {}".format(response["fail_reason"]))
 
@@ -237,6 +242,7 @@ class PlayerInterface(QObject):
             # Restore players' hitpoints
             response_text = town.innEvent(pc)
             await self.bot.say(response_text)
+            self.innUsed.emit(pc, response_text)
         else:
             await self.bot.say("You're not in a Town, much less an Inn!")
 

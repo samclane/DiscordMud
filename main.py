@@ -69,13 +69,21 @@ if __name__ == "__main__":
 
     # Start main Qt window
     main_window = ui.MainWindow(app, world)
+
+    # Register signal-slots
     pi.registered.connect(main_window.update)
-    pi.registered.connect(lambda pc: main_window.logger.info(pc.Name + " has joined the world."))
     pi.moved.connect(main_window.update)
-    pi.moved.connect(lambda pc: main_window.logger.info("{} has moved to {}".format(pc.Name, pc.Location)))
     pi.requestScreenshot.connect(
         lambda pc: main_window.worldFrame.saveSubimage(world.getAdjacentSpaces(pc.Location, pc.FOV_Default),
                                                        "capture-{}.png".format(pc.Name)))
+    # Logger slots
+    pi.moved.connect(lambda pc: main_window.logger.info("{} has moved to {}".format(pc.Name, pc.Location)))
+    pi.registered.connect(lambda pc: main_window.logger.info(pc.Name + " has joined the world."))
 
+    pi.attacked.connect(
+        lambda pc, ta, dm: main_window.logger.info("{} has attacked {} for {} damage".format(pc.Name, ta.Name, dm)))
+    pi.innUsed.connect(lambda pc, txt: main_window.logger.info("{} used the inn. Result: {}".format(pc.Name, txt)))
+    world.onPlayerDeath.connect(lambda pid: main_window.logger.info("{} has died".format(pi.players[pid].Name)))
+    world.onPlayerDeath.connect(lambda pid: pi.bot.say("{} has died".format(pi.players[pid].Name)))
     # Begin application, and exit when it returns
     sys.exit(app.exec_())

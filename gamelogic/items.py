@@ -1,3 +1,6 @@
+from PyQt5.QtCore import QObject, pyqtSignal
+
+
 class Equipment:
     Name: str
     WeightLb: float
@@ -142,11 +145,12 @@ class EquipmentSet:
             raise ValueError("Equipment was not of recognized type.")
 
 
-class Store:
+class Store(QObject):
     Inventory: [Equipment]
     PriceRatio: float  # Lower means better buy/sell prices, higher means worse
 
     def __init__(self, inventory=None):
+        super().__init__()
         self.Inventory = inventory if inventory else []
         self.PriceRatio = 1.0
 
@@ -154,6 +158,7 @@ class Store:
         return item.BaseValue * self.PriceRatio
 
     def sellItem(self, index: int, player_character) -> bool:
+        # Get an instance of the item from the Store's inventory
         item = [item for item in self.Inventory if isinstance(item, type(list(set(self.Inventory))[index]))][0]
         price = self.getPrice(item)
         if player_character.Currency < price:

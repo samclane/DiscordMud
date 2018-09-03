@@ -3,6 +3,7 @@ import random
 from itertools import product
 from math import sqrt
 
+from PyQt5.QtCore import QObject, pyqtSignal
 import numpy
 from noise import pnoise3
 
@@ -147,13 +148,15 @@ class Wilds(Space):
         result.run(pc)
 
 
-class World:
+class World(QObject):
     Name: str
     Width: int
     Height: int
     Map: [[Space]]
+    onPlayerDeath = pyqtSignal(str)
 
     def __init__(self, name: str, width: int, height: int):
+        super().__init__()
         self.Name = name
         self.Width = width
         self.Height = height
@@ -210,6 +213,7 @@ class World:
     def addActor(self, actor, space=None):
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
+            actor.playerDeath.connect(self.handlePlayerDeath)
             self.Players.append(actor)
         elif space and self.isSpaceValid(space):
             actor.Location = space
@@ -234,7 +238,7 @@ class World:
                 target.take_damage(dmg)
                 response["success"] = True
                 response["damage"] = dmg
-                response["target"] = target.Name
+                response["target"] = target
                 break
             else:
                 if isinstance(player_character.weapon, weapons.MeleeWeapon):
@@ -244,3 +248,9 @@ class World:
                 loc = self.Map[loc.Y][loc.X]
                 dmg = player_character.weapon.calcDamage(player_character.Location.distance(loc))
         return response
+
+    def handlePlayerDeath(self, player_id):
+        player = [pc for pc in self.Players if pc.UserId == player_id][0]
+        player.Location = self.StartingTown
+        player.HitPoints = player.HitPointsMax
+        self.onPlayerDeath.emit(player_id)

@@ -12,9 +12,7 @@ class QPlainTextEditLogger(logging.Handler):
 
     def emit(self, record):
         msg = self.format(record)
-        # self.widget.textCursor().appendPlainText(msg)
         self.widget.appendPlainText(msg)
-        self.widget.appendPlainText("\n")
 
     def write(self, m):
         pass

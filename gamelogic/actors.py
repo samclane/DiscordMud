@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QObject, pyqtSignal
+
 from gamelogic import items, gamespace, weapons
 
 
@@ -13,7 +15,7 @@ class Actor:
 
     def __init__(self, parentworld, hp: int = 0, name: str = "", body_type: int = 1):
         self.ParentWorld = parentworld
-        self.HitPoints = hp
+        self._HitPoints = self.HitPointsMax = hp
         self.Name = name
         self.BodyType = body_type
         self.Location: gamespace.Space = None
@@ -33,8 +35,21 @@ class Actor:
             return True
 
     @property
+    def HitPoints(self):
+        return self._HitPoints
+
+    @HitPoints.setter
+    def HitPoints(self, value):
+        self._HitPoints = min(max(value, 0), self.HitPointsMax)
+        if self._HitPoints == 0:
+            self.onDeath()
+
+    @property
     def isDead(self) -> bool:
         return self.HitPoints <= 0
+
+    def onDeath(self):
+        pass
 
 
 class NPC(Actor):
@@ -69,7 +84,8 @@ class WandererClass(PlayerClass):
         self.Name = "Wanderer"
 
 
-class PlayerCharacter(Actor):
+class PlayerCharacter(QObject, Actor):
+    playerDeath = pyqtSignal(str)  # Discord user Id
 
     def __init__(self, user_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,7 +94,7 @@ class PlayerCharacter(Actor):
         if self.Name is None:
             self.Name: str = "Unnamed"
         self.Class: PlayerClass = WandererClass()
-        self.HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
+        self._HitPoints = self.HitPointsMax = self.Class.HitPointsMaxBase
         self.EquipmentSet: items.EquipmentSet = items.EquipmentSet()
         self.FOV: int = self.FOV_Default
         self.Inventory: [items.Equipment] = []
@@ -107,3 +123,6 @@ class PlayerCharacter(Actor):
     def take_damage(self, damage: int):
         damage -= self.EquipmentSet.ArmorCount
         self.HitPoints -= damage  # TODO Finish this
+
+    def onDeath(self):
+        self.playerDeath.emit(self.UserId)
