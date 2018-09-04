@@ -35,13 +35,6 @@ class Weapon(Equipment):
         self._baseDamage = base_damage
         self.BaseValue = 10 * self._baseDamage
 
-    @property
-    def Damage(self):
-        return self._baseDamage
-
-    def onDamage(self):
-        pass
-
     def __eq__(self, other):
         return self.Name == other.Name
 
@@ -50,6 +43,13 @@ class Weapon(Equipment):
 
     def __str__(self):
         return "{}\t{}dmg".format(self.Name, self.Damage)
+
+    @property
+    def Damage(self):
+        return self._baseDamage
+
+    def onDamage(self):
+        pass
 
 
 class RangedWeapon(Weapon):
@@ -72,6 +72,9 @@ class RangedWeapon(Weapon):
             raise ValueError("RangeFalloff must be between 0 and 1")
         self._rangeFalloff = range_falloff
         self.BaseValue = self.BaseValue + (50 * range_) * (1 - range_falloff)
+
+    def __repr__(self):
+        return super().__repr__() + " {}sq {}%-falloff".format(self.Range, self.RangeFalloff)
 
     def calcDamage(self, distance: int) -> int:
         damage = self.Damage * ((1. - self.RangeFalloff) ** distance)
@@ -98,6 +101,10 @@ class ProjectileWeapon(RangedWeapon):
             raise ValueError("Capacity must be 1 or greater.")
         self.Capacity = capacity
         self._currentCapacity = capacity
+
+    def __repr__(self):
+        return super().__repr__() + " AmmoTypeEnum:{} {}/{} shots".format(self.AmmoType, self.currentCapacity,
+                                                                          self.Capacity)
 
     @property
     def isSingleShot(self) -> bool:
@@ -136,6 +143,11 @@ class Firearm(ProjectileWeapon):
             self._action = FiringAction.SingleShot
         self.BurstSize = burst_size
         self.BaseValue += (10 * self._action)  # Better firing action => Costs more
+
+    def __repr__(self):
+        return super().__repr__() + " CaliberEnum:{} ActionEnum:{} {} shots-per-attack".format(self.Caliber,
+                                                                                               self._action,
+                                                                                               self.BurstSize)
 
     def fire(self):
         self._currentCapacity -= self.BurstSize

@@ -3,8 +3,8 @@ import random
 from itertools import product
 from math import sqrt
 
-from PyQt5.QtCore import QObject, pyqtSignal
 import numpy
+from PyQt5.QtCore import QObject, pyqtSignal
 from noise import pnoise3
 
 from gamelogic import events, actors, items, weapons
@@ -112,12 +112,13 @@ class Town(Space):
     Population: int
     Industry: IndustryType
 
-    def __init__(self, x, y, name, population, industry=None, terrain=None, store=None):
+    def __init__(self, x: int, y: int, name: str, population: int = 0, industry: IndustryType = None,
+                 terrain: Terrain = None, store: items.Store = None):
         super(Town, self).__init__(x, y)
         self.Name = name
         self.Population = population
-        self.Industry = industry
-        self.Terrain = terrain
+        self.Industry = industry if industry else IndustryType()
+        self.Terrain = terrain if terrain else Terrain()
         self.Store = store if store else items.Store()
         self.Underwater = isinstance(self.Terrain, WaterTerrain)
 
@@ -148,12 +149,11 @@ class Wilds(Space):
         result.run(pc)
 
 
-class World(QObject):
+class World:
     Name: str
     Width: int
     Height: int
     Map: [[Space]]
-    onPlayerDeath = pyqtSignal(str)
 
     def __init__(self, name: str, width: int, height: int):
         super().__init__()
@@ -192,6 +192,12 @@ class World(QObject):
     def isSpaceValid(self, space: Space) -> bool:
         return (0 < space.X < self.Width - 1) and (0 < space.Y < self.Height - 1) and space.Terrain.isWalkable
 
+    def isBuildable(self, space: Space):
+        assert self.isSpaceValid(space), "Somehow trying to build on an impossible spot."
+        if space in self.Towns or space in self.Wilds:
+            return False
+        return True
+
     def getAdjacentSpaces(self, space, sq_range: int = 1) -> [Space]:
         fov = list(range(-sq_range, sq_range + 1))
         steps = product(fov, repeat=2)
@@ -213,7 +219,6 @@ class World(QObject):
     def addActor(self, actor, space=None):
         if isinstance(actor, actors.PlayerCharacter):
             actor.Location = self.StartingTown
-            actor.playerDeath.connect(self.handlePlayerDeath)
             self.Players.append(actor)
         elif space and self.isSpaceValid(space):
             actor.Location = space
@@ -253,4 +258,3 @@ class World(QObject):
         player = [pc for pc in self.Players if pc.UserId == player_id][0]
         player.Location = self.StartingTown
         player.HitPoints = player.HitPointsMax
-        self.onPlayerDeath.emit(player_id)

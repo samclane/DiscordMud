@@ -73,6 +73,7 @@ if __name__ == "__main__":
     # Register signal-slots
     pi.registered.connect(main_window.update)
     pi.moved.connect(main_window.update)
+    pi.buildingCreated.connect(main_window.update)
     pi.requestScreenshot.connect(
         lambda pc: main_window.worldFrame.saveSubimage(world.getAdjacentSpaces(pc.Location, pc.FOV_Default),
                                                        "capture-{}.png".format(pc.Name)))
@@ -83,7 +84,6 @@ if __name__ == "__main__":
     pi.attacked.connect(
         lambda pc, ta, dm: main_window.logger.info("{} has attacked {} for {} damage".format(pc.Name, ta.Name, dm)))
     pi.innUsed.connect(lambda pc, txt: main_window.logger.info("{} used the inn. Result: {}".format(pc.Name, txt)))
-    world.onPlayerDeath.connect(lambda pid: main_window.logger.info("{} has died".format(pi.players[pid].Name)))
-    world.onPlayerDeath.connect(lambda pid: pi.bot.say("{} has died".format(pi.players[pid].Name)))
+    pi.buildingCreated.connect(lambda pc, bld: main_window.logger.info("{} build a base {}".format(pc.Name, bld.Name)))
     # Begin application, and exit when it returns
     sys.exit(app.exec_())

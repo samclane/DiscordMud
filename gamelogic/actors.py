@@ -84,8 +84,7 @@ class WandererClass(PlayerClass):
         self.Name = "Wanderer"
 
 
-class PlayerCharacter(QObject, Actor):
-    playerDeath = pyqtSignal(str)  # Discord user Id
+class PlayerCharacter(Actor):
 
     def __init__(self, user_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -125,4 +124,4 @@ class PlayerCharacter(QObject, Actor):
         self.HitPoints -= damage  # TODO Finish this
 
     def onDeath(self):
-        self.playerDeath.emit(self.UserId)
+        self.ParentWorld.handlePlayerDeath(self.UserId)

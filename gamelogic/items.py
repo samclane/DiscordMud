@@ -15,6 +15,9 @@ class Equipment:
     def __str__(self):
         return self.Name
 
+    def __repr__(self):
+        return "{} {}lbs ${} [{}]".format(self.Name, self.WeightLb, self.BaseValue, 'X' if self.isEquipped else ' ')
+
     def onEquip(self, player_character):
         self.isEquipped = True
 
@@ -145,7 +148,7 @@ class EquipmentSet:
             raise ValueError("Equipment was not of recognized type.")
 
 
-class Store(QObject):
+class Store:
     Inventory: [Equipment]
     PriceRatio: float  # Lower means better buy/sell prices, higher means worse
 

@@ -8,7 +8,7 @@ import discord
 from PyQt5.QtCore import pyqtSignal, QObject
 from discord.ext import commands
 
-from gamelogic import actors, weapons
+from gamelogic import actors, weapons, gamespace
 
 MOVEMENT_WAIT_TIME = .01  # seconds
 TIMEOUT = 10.0
@@ -19,6 +19,7 @@ class PlayerInterface(QObject):
     moved = pyqtSignal(actors.PlayerCharacter)  # (PlayerCharacter)
     attacked = pyqtSignal(actors.PlayerCharacter, actors.PlayerCharacter, int)  # Source, Target, Damage
     innUsed = pyqtSignal(actors.PlayerCharacter, str)  # PC and Flavor Text
+    buildingCreated = pyqtSignal(actors.PlayerCharacter, gamespace.Space)
     requestScreenshot = pyqtSignal(actors.PlayerCharacter)
 
     # Magic Functions
@@ -246,6 +247,32 @@ class PlayerInterface(QObject):
             self.innUsed.emit(pc, response_text)
         else:
             await self.bot.say("You're not in a Town, much less an Inn!")
+
+    @commands.group(name="build", pass_context=True, invoke_wtihout_command=True)
+    async def build(self, ctx):
+        member = ctx.message.author
+        if not self.check_member(member):
+            await self.bot.say("Please register first")
+            return
+        if ctx.invoked_subcommand is None:
+            await self.bot.say("Please specify a building.")
+
+    @build.command(pass_context=True)
+    async def base(self, ctx, *, params: str):
+        member = ctx.message.author
+        player: actors.PlayerCharacter = self.players[member.id]
+        location = player.Location
+        param_list = params.split(' ')
+        if self.world.isBuildable(location):
+            try:
+                building = gamespace.Town(location.X, location.Y, *param_list)
+                self.world.addTown(building)
+                await self.bot.say("{} base has just been added to the world.".format(building.Name))
+                self.buildingCreated.emit(player, building)
+            except Exception as e:
+                await self.bot.say("Error building town: {}".format(e))
+        else:
+            await self.bot.say("Can't build on that location")
 
     # Store
 
