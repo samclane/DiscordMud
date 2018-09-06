@@ -127,6 +127,10 @@ class Town(Space):
         return "Your hitpoints have been restored, {}".format(pc.Name)
 
 
+class Base(Town):
+    pass  # TODO
+
+
 class Wilds(Space):
     Name: str
     null_event: events.Event
@@ -223,7 +227,7 @@ class World:
         elif space and self.isSpaceValid(space):
             actor.Location = space
 
-    def attack(self, player_character: actors.PlayerCharacter, direction: (int, int)):
+    def attack(self, player_character, direction: (int, int) = (0, 0)):
         response = {
             "success": False,
             "damage": 0,
@@ -248,6 +252,10 @@ class World:
             else:
                 if isinstance(player_character.weapon, weapons.MeleeWeapon):
                     response["fail_reason"] = "No other players in range of your Melee Weapon."
+                    break
+                if direction == (0, 0):
+                    response["fail_reason"] = "No other players in current square. " \
+                                              "Specify a direction (n,s,e,w,ne,se,sw,nw))"
                     break
                 loc += direction
                 loc = self.Map[loc.Y][loc.X]

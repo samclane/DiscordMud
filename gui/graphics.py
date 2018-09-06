@@ -187,6 +187,7 @@ class WorldView(QGraphicsObject):
         self.spritemap['player'] = QPixmap(r"res/sprites/player.png")
         self.spritemap['water'] = QPixmap(r"res/sprites/water.png")
         self.spritemap['mountain'] = QPixmap(r"res/sprites/mountain.png")
+        self.spritemap['base'] = QPixmap(r"res/sprites/base.png")
 
         self.squareWidth = self.spritemap['dirt'].width()
         self.squareHeight = self.spritemap['dirt'].height()
@@ -234,7 +235,10 @@ class WorldView(QGraphicsObject):
                 if isinstance(space, Town):
                     if space.Underwater:
                         painter.setOpacity(.25)
-                    painter.drawPixmap(point, self.spritemap["town"])
+                    if isinstance(space, Base):
+                        painter.drawPixmap(point, self.spritemap["base"])
+                    else:
+                        painter.drawPixmap(point, self.spritemap["town"])
                     painter.setOpacity(1)
                     if self.world.StartingTown == space:
                         painter.drawRect(point.x(), point.y(), self.squareWidth, self.squareHeight)

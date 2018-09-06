@@ -5,7 +5,7 @@ from gamelogic.events import *
 from gamelogic.gamespace import *
 from gamelogic.items import *
 from gamelogic.weapons import *
-
+import os
 
 class PlayerTest(unittest.TestCase):
 
@@ -32,12 +32,15 @@ class PlayerTest(unittest.TestCase):
 
     def test_world(self):
         w = World("Testworld", 50, 50)
-        t = Town(1, 1, 'Braxton', 50, FarmingIndustry)
+        t = Town(1, 1, 'Braxton', 50, FarmingIndustry())
         w.addTown(t)
         self.assertIn(t, w.Towns)
         i = Wilds(2, 2, 'Hidden Forrest')
         w.addWilds(i)
         self.assertIn(i, w.Wilds)
+        w.saveAsFile()
+        self.assertTrue(os.path.exists("world.p"))
+        os.remove("world.p")
 
     def test_distance(self):
         s1 = Space(0, 0)
@@ -67,16 +70,12 @@ class PlayerTest(unittest.TestCase):
 
     def test_combat(self):
         w = World("Testworld", 50, 50)
-        t = Town(0, 0, "Testville", 123, 1, SandTerrain())
+        t = Town(0, 0, "Testville", 123, WoodworkingIndustry(), SandTerrain())
         w.addTown(t, True)
         p1 = PlayerCharacter(None, w, hp=100, name='p1')
         p2 = PlayerCharacter(None, w, hp=100, name='p2')
         w.addActor(p1)
         w.addActor(p2)
-        self.assertEqual(p1.Location.distance(p2.Location), 0)
-        if not p1.attemptMove((3, 4)):
-            self.fail("P1 couldn't move for some reason.")
-        self.assertEqual(p1.Location.distance(p2.Location), 5)
         ppsh41 = PPSh41()
         p1.equip(ppsh41)
         ak = AK47()
@@ -85,12 +84,14 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(p1.EquipmentSet.OffHand, ppsh41)
         self.assertEqual(p2.EquipmentSet.MainHand, ak)
         self.assertEqual(p2.EquipmentSet.OffHand, ak)
-        p1.attack(p2)
-        print(p2.HitPoints, p2.HitPointsMax)
-        if not p1.attemptMove((-2, -3)):
-            self.fail("P1 couldn't move for some reason")
-        p1.attack(p2)
-        print(p2.HitPoints, p2.HitPointsMax)
+        self.assertEqual(p2.HitPoints, p2.HitPointsMax)
+        r1 = w.attack(p1)
+        self.assertTrue(r1["success"])
+        self.assertLess(p2.HitPoints, p2.HitPointsMax)
+        self.assertEqual(p1.HitPoints, p1.HitPointsMax)
+        r2 = w.attack(p2)
+        self.assertTrue(r2["success"])
+        self.assertLess(p1.HitPoints, p1.HitPointsMax)
 
 
 class WeaponsTest(unittest.TestCase):
@@ -145,8 +146,3 @@ class WeaponsTest(unittest.TestCase):
         self.assertEqual(aps.Action, FiringAction.FullyAutomatic)
         aps.toggleAction()
         self.assertEqual(aps.Action, FiringAction.SemiAutomatic)
-
-        print("")
-        print(ImplementedWeaponsList)
-        print("---")
-        print(ImplementedWeaponsDict)

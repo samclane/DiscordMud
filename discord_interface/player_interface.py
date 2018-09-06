@@ -259,13 +259,16 @@ class PlayerInterface(QObject):
 
     @build.command(pass_context=True)
     async def base(self, ctx, *, params: str):
+        if params is None:
+            await self.bot.say("You must give your base a name!")
+            return
         member = ctx.message.author
         player: actors.PlayerCharacter = self.players[member.id]
         location = player.Location
         param_list = params.split(' ')
         if self.world.isBuildable(location):
             try:
-                building = gamespace.Town(location.X, location.Y, *param_list)
+                building = gamespace.Base(location.X, location.Y, *param_list)
                 self.world.addTown(building)
                 await self.bot.say("{} base has just been added to the world.".format(building.Name))
                 self.buildingCreated.emit(player, building)
