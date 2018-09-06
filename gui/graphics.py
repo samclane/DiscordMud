@@ -226,24 +226,28 @@ class WorldView(QGraphicsObject):
                 if space.Terrain.id == SandTerrain.id:
                     painter.drawPixmap(point,
                                        self.spritemap["dirt"])
-                if space.Terrain.id == WaterTerrain.id:
+                elif space.Terrain.id == WaterTerrain.id:
                     painter.drawPixmap(point,
                                        self.spritemap["water"])
-                if space.Terrain.id == MountainTerrain.id:
+                elif space.Terrain.id == MountainTerrain.id:
                     painter.drawPixmap(point,
                                        self.spritemap["mountain"])
-                if isinstance(space, Town):
-                    if space.Underwater:
-                        painter.setOpacity(.25)
-                    if isinstance(space, Base):
-                        painter.drawPixmap(point, self.spritemap["base"])
-                    else:
-                        painter.drawPixmap(point, self.spritemap["town"])
-                    painter.setOpacity(1)
-                    if self.world.StartingTown == space:
-                        painter.drawRect(point.x(), point.y(), self.squareWidth, self.squareHeight)
-                if isinstance(space, Wilds):
-                    painter.drawPixmap(point, self.spritemap["wild"])
+
+        for space in self.world.Towns:
+            point = self.gridToPix(space.X, space.Y)
+            if space.Underwater:
+                painter.setOpacity(.25)
+            if isinstance(space, Base):
+                painter.drawPixmap(point, self.spritemap["base"])
+            else:
+                painter.drawPixmap(point, self.spritemap["town"])
+            painter.setOpacity(1)
+            if self.world.StartingTown == space:
+                painter.drawRect(point.x(), point.y(), self.squareWidth, self.squareHeight)
+
+        for space in self.world.Wilds:
+            point = self.gridToPix(space.X, space.Y)
+            painter.drawPixmap(point, self.spritemap["wild"])
 
         # Draw PCs
         for player in self.world.Players:
