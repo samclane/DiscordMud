@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QStandardItemModel
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QDialogButtonBox, QSpinBox, QComboBox, QHBoxLayout, \
-    QVBoxLayout, QCheckBox, QErrorMessage, QTreeView
+    QVBoxLayout, QCheckBox, QErrorMessage, QTreeView, QSlider, QFormLayout
 
 from gamelogic import gamespace, weapons, items
 
@@ -27,6 +27,23 @@ class AddWorldDialog(QDialog):
         self.heightEdit.setValue(100)
         heightLabel.setBuddy(self.heightEdit)
 
+        waterLabel = QLabel("Water Level")
+        self.waterScale = QSlider(Qt.Horizontal)
+        self.waterScale.setMinimum(0)
+        self.waterScale.setMaximum(100)
+        self.waterScale.setValue(10)
+        self.waterScale.setTickInterval(1)
+        waterLabel.setBuddy(self.waterScale)
+
+        mountainLabel = QLabel("Mountain Floor")
+        self.mountainScale = QSlider(Qt.Horizontal)
+        self.mountainScale.setMinimum(0)
+        self.mountainScale.setMaximum(100)
+        self.mountainScale.setValue(70)
+        self.mountainScale.setTickInterval(1)
+        mountainLabel.setBuddy(self.mountainScale)
+        
+
         okButton = QPushButton("&Ok")
         okButton.setAutoDefault(True)
 
@@ -48,9 +65,14 @@ class AddWorldDialog(QDialog):
         posLayout.addWidget(heightLabel)
         posLayout.addWidget(self.heightEdit)
 
+        paramLayout = QFormLayout()
+        paramLayout.addRow(waterLabel, self.waterScale)
+        paramLayout.addRow(mountainLabel, self.mountainScale)
+
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(nameLayout)
         mainLayout.addLayout(posLayout)
+        mainLayout.addLayout(paramLayout)
         mainLayout.addWidget(buttonBox)
 
         self.setLayout(mainLayout)
@@ -63,7 +85,9 @@ class AddWorldDialog(QDialog):
     def onOk(self, event):
         self.returnData = gamespace.World(self.nameEdit.text(),
                                           int(self.widthEdit.text()),
-                                          int(self.heightEdit.text()))
+                                          int(self.heightEdit.text()),
+                                          water_height=self.waterScale.value() / 100,
+                                          mountain_floor=self.mountainScale.value() / 100)
         self.accept()
 
 

@@ -46,10 +46,10 @@ class Space:
     Y: int
     Terrain: Terrain
 
-    def __init__(self, x: int, y: int, terrain: Terrain = Terrain()):
+    def __init__(self, x: int, y: int, terrain: Terrain = None):
         self.X = x
         self.Y = y
-        self.Terrain = terrain
+        self.Terrain = terrain if terrain else Terrain()
 
     def __str__(self):
         return "({}, {})".format(self.X, self.Y)
@@ -159,11 +159,15 @@ class World:
     Height: int
     Map: [[Space]]
 
-    def __init__(self, name: str, width: int, height: int):
+    def __init__(self, name: str, width: int, height: int, water_height: float = .1, mountain_floor: float = .7):
         super().__init__()
         self.Name = name
         self.Width = width
         self.Height = height
+        self.generationParams = {
+            "water": water_height,
+            "mountains": mountain_floor
+        }
         self.Map = [[Space(x, y, Terrain()) for x in range(width)] for y in
                     range(height)]
         self.Towns = []
@@ -180,8 +184,8 @@ class World:
                 (self.Width + self.Height) / 2)  # I pulled this out of my butt. Gives us decently scaled noise.
         sand_slice = random.random()
         mountain_slice = random.random()
-        water_threshold = .1  # Higher water-factor -> more water on map
-        mountain_threshold = .7  # Lower mountain_thresh -> less mountains
+        water_threshold = self.generationParams["water"]  # Higher water-factor -> more water on map
+        mountain_threshold = self.generationParams["mountains"]  # Lower mountain_thresh -> less mountains
         for x in range(self.Width):
             for y in range(self.Height):
                 # Land and water pass

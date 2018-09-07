@@ -69,7 +69,7 @@ class PlayerTest(unittest.TestCase):
         i.runEvent(player)
 
     def test_combat(self):
-        w = World("Testworld", 50, 50)
+        w = World("Testworld", 50, 50, water_height=0, mountain_floor=1)
         t = Town(0, 0, "Testville", 123, WoodworkingIndustry(), SandTerrain())
         w.addTown(t, True)
         p1 = PlayerCharacter(None, w, hp=100, name='p1')
