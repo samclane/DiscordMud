@@ -1,4 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+class FullyImplemented:
+    pass
 
 
 class Equipment:
@@ -26,11 +27,21 @@ class Equipment:
 
 
 class Armor(Equipment):
-    ArmorCount: int
+    _ArmorCount: int
 
     def __init__(self, armor_count=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ArmorCount = armor_count
+        self._ArmorCount = armor_count
+        self.BaseValue = 10 * self._ArmorCount
+
+    @property
+    def ArmorCount(self):
+        # Determine if the bullet hits or misses
+        return self._ArmorCount
+
+    @ArmorCount.setter
+    def ArmorCount(self, val):
+        self._ArmorCount = val
 
     def activateUtility(self, player_character):
         pass

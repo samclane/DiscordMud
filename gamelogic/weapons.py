@@ -1,4 +1,4 @@
-from gamelogic.items import Equipment, MainHandEquipment, OffHandEquipment
+from gamelogic.items import Equipment, MainHandEquipment, OffHandEquipment, FullyImplemented
 
 
 class ProjectileType:
@@ -171,10 +171,6 @@ class SelectiveFire(Firearm):
             self._action = FiringAction.FullyAutomatic
         else:
             self._action = FiringAction.SemiAutomatic
-
-
-class FullyImplemented(Weapon):
-    pass
 
 
 class Pistol(Firearm, MainHandEquipment):

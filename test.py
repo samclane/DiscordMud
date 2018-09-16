@@ -5,7 +5,9 @@ from gamelogic.events import *
 from gamelogic.gamespace import *
 from gamelogic.items import *
 from gamelogic.weapons import *
+from gamelogic.armor import *
 import os
+
 
 class PlayerTest(unittest.TestCase):
 
@@ -29,6 +31,8 @@ class PlayerTest(unittest.TestCase):
         es.MainHand = MainHandEquipment('Steel Sword', 10, 100)
         es.OffHand = OffHandEquipment('Shield', 10, 1000)
         self.assertEqual(es.Chest.Name, 'Chain Mail')
+
+        es.Head = SSh68()
 
     def test_world(self):
         w = World("Testworld", 50, 50)
