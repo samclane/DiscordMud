@@ -1,3 +1,5 @@
+# For Current Development, see [Discordia](https://github.com/samclane/Discordia)
+
 # DiscordMud
 MUD game and server that uses discord as a player interface
 
