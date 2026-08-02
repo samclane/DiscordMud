@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
 
         # Init Statusbar
         self.statusbar = self.statusBar()
+        assert self.statusbar is not None  # QMainWindow builds these on demand; they are never None here
 
         # Init game world object
         self.world = world
@@ -42,7 +43,9 @@ class MainWindow(QMainWindow):
         exitAct.triggered.connect(app.quit)
 
         self.menubar = self.menuBar()
+        assert self.menubar is not None
         fileMenu = self.menubar.addMenu('&File')
+        assert fileMenu is not None
         fileMenu.addAction(saveAct)
         fileMenu.addAction(resetAct)
         fileMenu.addAction(exitAct)
@@ -57,6 +60,7 @@ class MainWindow(QMainWindow):
         wildsAct.triggered.connect(lambda e: self.worldFrame.changePointerMode(graphics.PointerMode.AddWilds))
 
         self.toolbar = self.addToolBar('Map')
+        assert self.toolbar is not None
         self.toolbar.addAction(townAct)
         self.toolbar.addAction(wildsAct)
 
@@ -67,7 +71,7 @@ class MainWindow(QMainWindow):
         self.worldFrame.resetViewport()
 
         log_handler = logs.QPlainTextEditLogger(self)
-        splitter1 = QSplitter(Qt.Vertical, self)
+        splitter1 = QSplitter(Qt.Orientation.Vertical, self)
         splitter1.addWidget(self.worldFrame)
         splitter1.addWidget(log_handler.widget)
         splitter1.setStretchFactor(1, 0)
@@ -75,9 +79,9 @@ class MainWindow(QMainWindow):
 
         self.logger.addHandler(log_handler)
 
-    def update(self):
-        super().update()
+    def update(self, *args, **kwargs):
+        super().update(*args, **kwargs)
         self.worldFrame.update()
 
-    def resizeEvent(self, event):
-        self.worldFrame.fitInView()
+    def resizeEvent(self, a0):  # named a0 to match QWidget's stub; a name mismatch alone fails the override check
+        self.worldFrame.fitWorldInView()
