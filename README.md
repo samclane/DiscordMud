@@ -1,6 +1,8 @@
 # For Current Development, see [Discordia](https://github.com/samclane/Discordia)
 
 # DiscordMud
+[![Tests](https://github.com/samclane/DiscordMud/actions/workflows/tests.yml/badge.svg)](https://github.com/samclane/DiscordMud/actions/workflows/tests.yml)
+
 MUD game and server that uses discord as a player interface
 
 # Installation
