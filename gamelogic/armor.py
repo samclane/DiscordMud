@@ -31,6 +31,6 @@ class SSh68(Helmet, FullyImplemented):
                          weightlb=3.31)
 
 
-ImplementedArmorList: list = FullyImplemented.__subclasses__()
+ImplementedArmorList: list[type[FullyImplemented]] = FullyImplemented.__subclasses__()
 
-ImplementedArmorDict: dict = {cls.Name: cls for cls in FullyImplemented.__subclasses__()}
+ImplementedArmorDict: dict[str, type[FullyImplemented]] = {cls.Name: cls for cls in ImplementedArmorList}

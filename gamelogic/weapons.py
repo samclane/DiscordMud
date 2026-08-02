@@ -415,11 +415,11 @@ class Hammer(BluntWeapon, MainHandEquipment):
     pass
 
 
-ImplementedWeaponsList: list = FullyImplemented.__subclasses__()
+ImplementedWeaponsList: list[type[FullyImplemented]] = FullyImplemented.__subclasses__()
 
-ImplementedWeaponsDict: dict = {cls.Name: cls for cls in FullyImplemented.__subclasses__()}
+ImplementedWeaponsDict: dict[str, type[FullyImplemented]] = {cls.Name: cls for cls in ImplementedWeaponsList}
 
-"""
+r"""
 Here are my fancy regex's, because I don't want to waste them:
 
 Match:

@@ -11,6 +11,9 @@ In order to run, you must set up and configure your own user bot. More info can 
 
 Once you get a token, create a new environmental variable called `DISCORD_TOKEN`, and set it to be your token. 
 
+You also need to enable the **Message Content Intent** for your bot (Developer Portal -> your application -> Bot ->
+Privileged Gateway Intents). Without it the bot cannot read commands.
+
 Then, run `main.py`. Your bot should log in, and a world creation dialog should appear. Currently, the dialog only asks
 for a world name and grid size. 
 

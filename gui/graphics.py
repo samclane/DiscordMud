@@ -202,7 +202,7 @@ class WorldView(QGraphicsObject):
             for x in range(self.world.Width):
                 xcoord, ycoord = rect.left() + x * self.squareWidth, \
                                  canvasTop + y * self.squareHeight
-                self.gridToPixMap[y][x] = QPoint(xcoord, ycoord)
+                self.gridToPixMap[y][x] = QPoint(int(xcoord), int(ycoord))
 
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.boundingWidth, self.boundingHeight)

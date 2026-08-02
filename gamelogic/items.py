@@ -1,11 +1,11 @@
 class FullyImplemented:
-    pass
+    Name: str  # every subclass sets this; declared here so __subclasses__() lookups type-check
 
 
 class Equipment:
     Name: str
     WeightLb: float
-    BaseValue: int
+    BaseValue: float
 
     def __init__(self, name: str = "Empty", weightlb: float = 0, base_value: int = 0):
         self.Name = name
@@ -111,7 +111,7 @@ class EquipmentSet:
         yield self.OffHand
 
     @property
-    def ArmorSet(self) -> [Armor]:
+    def ArmorSet(self) -> list[Armor]:
         armorlist = [self.Head,
                      self.Chest,
                      self.Legs,
@@ -160,7 +160,7 @@ class EquipmentSet:
 
 
 class Store:
-    Inventory: [Equipment]
+    Inventory: list[Equipment]
     PriceRatio: float  # Lower means better buy/sell prices, higher means worse
 
     def __init__(self, inventory=None):

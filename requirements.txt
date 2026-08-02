@@ -1,4 +1,4 @@
 noise
-discord
+discord.py>=2.0
 pyqt5
 numpy
