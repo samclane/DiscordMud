@@ -2,7 +2,7 @@ import os
 
 from discord.ext import commands
 
-TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
+TOKEN = os.environ.get('DISCORD_TOKEN')
 PREFIX = '*'
 DESCRIPTION = "Attempt at a Discord MUD Server"
 

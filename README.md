@@ -9,7 +9,7 @@ Requires `discord.py`.
 In order to run, you must set up and configure your own user bot. More info can be found 
 [here](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token). 
 
-Once you get a token, create a new environmental variable called `DISCORD_BOT_TOKEN`, and set it to be your token. 
+Once you get a token, create a new environmental variable called `DISCORD_TOKEN`, and set it to be your token. 
 
 Then, run `main.py`. Your bot should log in, and a world creation dialog should appear. Currently, the dialog only asks
 for a world name and grid size. 
